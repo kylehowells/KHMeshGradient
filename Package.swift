@@ -6,7 +6,7 @@ let package = Package(
 	platforms: [.iOS(.v15), .macCatalyst(.v15)],
 	products: [.library(name: "KHMeshGradient", targets: ["KHMeshGradient"])],
 	targets: [
-		.target(name: "KHMeshGradient", resources: [.process("Resources")]),
+		.target(name: "KHMeshGradient", resources: [.copy("Resources/MeshShaders.metal")]),
 		.testTarget(name: "KHMeshGradientTests", dependencies: ["KHMeshGradient"]),
 	]
 )

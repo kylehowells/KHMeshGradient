@@ -1,0 +1,466 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		47FABFBA2668AA5BE0939850 /* SwiftUIMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */; };
+		5456EA4F67686898B7AF1AC4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */; };
+		63B44E1D9D6C99D12BBA6C29 /* MeshSamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */; };
+		664AD50630C4EA3EA0BE64A8 /* KHMeshGradient in Frameworks */ = {isa = PBXBuildFile; productRef = E652394EFFFB7ABAFE6C4036 /* KHMeshGradient */; };
+		71D743F8C62A9BBC04190B79 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E489C1A050BE380822112BE2 /* GalleryViewController.swift */; };
+		A3DBA6FEA74533403F4721FC /* KHMeshGradientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E8607EE882B2266B891F9A3 /* KHMeshGradientTests.swift */; };
+		BDDB385DC272EDFF948F7151 /* ComparisonExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */; };
+		FA893CCC69707E1B9FC55EE3 /* KHMeshGradient in Frameworks */ = {isa = PBXBuildFile; productRef = 49874D46C9EE1E41CFDF6D8F /* KHMeshGradient */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DABB67FE14F31BB61F1D0DD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EC088678A31E9A2D5C2FA775 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 15E7575EB7BB8FDD32C8049A;
+			remoteInfo = KHMeshGradientExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2E8607EE882B2266B891F9A3 /* KHMeshGradientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KHMeshGradientTests.swift; sourceTree = "<group>"; };
+		8A29E4660802366436987DDD /* KHMeshGradient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = KHMeshGradient; path = ..; sourceTree = SOURCE_ROOT; };
+		8D0B267D30601F57EB68889E /* KHMeshGradientExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KHMeshGradientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIMesh.swift; sourceTree = "<group>"; };
+		D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonExporter.swift; sourceTree = "<group>"; };
+		E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshSamples.swift; sourceTree = "<group>"; };
+		E34E6CCF098C1E5CF987618E /* KHMeshGradientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = KHMeshGradientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E489C1A050BE380822112BE2 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		23C197A293BDE6C7D22147F6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA893CCC69707E1B9FC55EE3 /* KHMeshGradient in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B8C3FC05D965B1CCB5D12E66 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				664AD50630C4EA3EA0BE64A8 /* KHMeshGradient in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		06088B53FA35C32191FC9ED9 /* KHMeshGradientTests */ = {
+			isa = PBXGroup;
+			children = (
+				2E8607EE882B2266B891F9A3 /* KHMeshGradientTests.swift */,
+			);
+			name = KHMeshGradientTests;
+			path = ../Tests/KHMeshGradientTests;
+			sourceTree = "<group>";
+		};
+		949E8B572858D8FE2EFFC138 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D0B267D30601F57EB68889E /* KHMeshGradientExample.app */,
+				E34E6CCF098C1E5CF987618E /* KHMeshGradientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		97963FD258D6D8264022E181 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				8A29E4660802366436987DDD /* KHMeshGradient */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		A028DA0D6422663087A8B586 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */,
+				D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */,
+				E489C1A050BE380822112BE2 /* GalleryViewController.swift */,
+				E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */,
+				AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		ABD9145653C3F5579A291455 = {
+			isa = PBXGroup;
+			children = (
+				06088B53FA35C32191FC9ED9 /* KHMeshGradientTests */,
+				97963FD258D6D8264022E181 /* Packages */,
+				A028DA0D6422663087A8B586 /* Sources */,
+				949E8B572858D8FE2EFFC138 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		15E7575EB7BB8FDD32C8049A /* KHMeshGradientExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18A06813007DE01898C27003 /* Build configuration list for PBXNativeTarget "KHMeshGradientExample" */;
+			buildPhases = (
+				E3328D3339FA1A3D284D399C /* Sources */,
+				B8C3FC05D965B1CCB5D12E66 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KHMeshGradientExample;
+			packageProductDependencies = (
+				E652394EFFFB7ABAFE6C4036 /* KHMeshGradient */,
+			);
+			productName = KHMeshGradientExample;
+			productReference = 8D0B267D30601F57EB68889E /* KHMeshGradientExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FCFEAACDC2A98C83E9ABDACB /* KHMeshGradientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A7DCBE80A7D50221EF70ED6 /* Build configuration list for PBXNativeTarget "KHMeshGradientTests" */;
+			buildPhases = (
+				2554893440DFD008E17C5335 /* Sources */,
+				23C197A293BDE6C7D22147F6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				29963BBD09F6DE5EB366F8A7 /* PBXTargetDependency */,
+			);
+			name = KHMeshGradientTests;
+			packageProductDependencies = (
+				49874D46C9EE1E41CFDF6D8F /* KHMeshGradient */,
+			);
+			productName = KHMeshGradientTests;
+			productReference = E34E6CCF098C1E5CF987618E /* KHMeshGradientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EC088678A31E9A2D5C2FA775 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					15E7575EB7BB8FDD32C8049A = {
+						ProvisioningStyle = Automatic;
+					};
+					FCFEAACDC2A98C83E9ABDACB = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 9FA0C781C5CCC81037C66D6D /* Build configuration list for PBXProject "KHMeshGradientExample" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = ABD9145653C3F5579A291455;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6EC7DC8BBAC46E0CED8447E8 /* XCLocalSwiftPackageReference ".." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 949E8B572858D8FE2EFFC138 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				15E7575EB7BB8FDD32C8049A /* KHMeshGradientExample */,
+				FCFEAACDC2A98C83E9ABDACB /* KHMeshGradientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2554893440DFD008E17C5335 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3DBA6FEA74533403F4721FC /* KHMeshGradientTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3328D3339FA1A3D284D399C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5456EA4F67686898B7AF1AC4 /* AppDelegate.swift in Sources */,
+				BDDB385DC272EDFF948F7151 /* ComparisonExporter.swift in Sources */,
+				71D743F8C62A9BBC04190B79 /* GalleryViewController.swift in Sources */,
+				63B44E1D9D6C99D12BBA6C29 /* MeshSamples.swift in Sources */,
+				47FABFBA2668AA5BE0939850 /* SwiftUIMesh.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		29963BBD09F6DE5EB366F8A7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 15E7575EB7BB8FDD32C8049A /* KHMeshGradientExample */;
+			targetProxy = DABB67FE14F31BB61F1D0DD4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1C50B225216427146FFCA503 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kylehowells.KHMeshGradientTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KHMeshGradientExample.app/KHMeshGradientExample";
+			};
+			name = Release;
+		};
+		40F9309BE686D19BCE3608DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kylehowells.KHMeshGradientTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KHMeshGradientExample.app/KHMeshGradientExample";
+			};
+			name = Debug;
+		};
+		70CC725545BF19B31EF32497 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kylehowells.KHMeshGradientExample;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		751008BF5529AE52D6579CB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BAE70534565BB17306C36105 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CFDAC2FC67859808671EA8B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kylehowells.KHMeshGradientExample;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		18A06813007DE01898C27003 /* Build configuration list for PBXNativeTarget "KHMeshGradientExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				70CC725545BF19B31EF32497 /* Debug */,
+				CFDAC2FC67859808671EA8B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1A7DCBE80A7D50221EF70ED6 /* Build configuration list for PBXNativeTarget "KHMeshGradientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				40F9309BE686D19BCE3608DE /* Debug */,
+				1C50B225216427146FFCA503 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9FA0C781C5CCC81037C66D6D /* Build configuration list for PBXProject "KHMeshGradientExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				751008BF5529AE52D6579CB0 /* Debug */,
+				BAE70534565BB17306C36105 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		6EC7DC8BBAC46E0CED8447E8 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		49874D46C9EE1E41CFDF6D8F /* KHMeshGradient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KHMeshGradient;
+		};
+		E652394EFFFB7ABAFE6C4036 /* KHMeshGradient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KHMeshGradient;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = EC088678A31E9A2D5C2FA775 /* Project object */;
+}

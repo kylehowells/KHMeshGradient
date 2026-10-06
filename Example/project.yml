@@ -1,0 +1,49 @@
+name: KHMeshGradientExample
+options:
+  bundleIdPrefix: com.kylehowells
+  deploymentTarget:
+    iOS: "15.0"
+packages:
+  KHMeshGradient:
+    path: ..
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  KHMeshGradientExample:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    dependencies:
+      - package: KHMeshGradient
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Mesh Gradients
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kylehowells.KHMeshGradientExample
+        GENERATE_INFOPLIST_FILE: NO
+  KHMeshGradientTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [../Tests/KHMeshGradientTests]
+    dependencies:
+      - target: KHMeshGradientExample
+      - package: KHMeshGradient
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  KHMeshGradientExample:
+    build:
+      targets:
+        KHMeshGradientExample: all
+        KHMeshGradientTests: [test]
+    test:
+      targets: [KHMeshGradientTests]

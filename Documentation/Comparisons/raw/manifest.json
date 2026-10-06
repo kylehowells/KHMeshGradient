@@ -1,0 +1,53 @@
+{
+  "device" : "iPad",
+  "height" : 240,
+  "os" : "26.5",
+  "samples" : [
+    {
+      "detail" : "2 × 2 · device colors · smooth",
+      "id" : "corners",
+      "title" : "Four corners"
+    },
+    {
+      "detail" : "3 × 3 · regular grid · smooth",
+      "id" : "rainbow",
+      "title" : "Rainbow"
+    },
+    {
+      "detail" : "3 × 3 · center at (0.72, 0.28)",
+      "id" : "warped",
+      "title" : "Moved center"
+    },
+    {
+      "detail" : "4 × 4 · irregular interior points",
+      "id" : "organic",
+      "title" : "Organic"
+    },
+    {
+      "detail" : "2 × 2 · stretched orange corner",
+      "id" : "bezier",
+      "title" : "Explicit Bézier handles"
+    },
+    {
+      "detail" : "3 × 3 · smoothsColors = false",
+      "id" : "linear-colors",
+      "title" : "Unsmoothed colors"
+    },
+    {
+      "detail" : "Inset corner · indigo background fill",
+      "id" : "background",
+      "title" : "Outside the mesh"
+    },
+    {
+      "detail" : "Per-vertex alpha · clear background",
+      "id" : "opacity",
+      "title" : "Transparency"
+    },
+    {
+      "detail" : "Oklab vs Apple's perceptual interpolation",
+      "id" : "perceptual",
+      "title" : "Perceptual color space"
+    }
+  ],
+  "width" : 360
+}

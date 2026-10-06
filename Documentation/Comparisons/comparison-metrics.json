@@ -1,0 +1,112 @@
+{
+  "capture": {
+    "device": "iPad",
+    "height": 240,
+    "os": "26.5",
+    "samples": [
+      {
+        "detail": "2 \u00d7 2 \u00b7 device colors \u00b7 smooth",
+        "id": "corners",
+        "title": "Four corners"
+      },
+      {
+        "detail": "3 \u00d7 3 \u00b7 regular grid \u00b7 smooth",
+        "id": "rainbow",
+        "title": "Rainbow"
+      },
+      {
+        "detail": "3 \u00d7 3 \u00b7 center at (0.72, 0.28)",
+        "id": "warped",
+        "title": "Moved center"
+      },
+      {
+        "detail": "4 \u00d7 4 \u00b7 irregular interior points",
+        "id": "organic",
+        "title": "Organic"
+      },
+      {
+        "detail": "2 \u00d7 2 \u00b7 stretched orange corner",
+        "id": "bezier",
+        "title": "Explicit B\u00e9zier handles"
+      },
+      {
+        "detail": "3 \u00d7 3 \u00b7 smoothsColors = false",
+        "id": "linear-colors",
+        "title": "Unsmoothed colors"
+      },
+      {
+        "detail": "Inset corner \u00b7 indigo background fill",
+        "id": "background",
+        "title": "Outside the mesh"
+      },
+      {
+        "detail": "Per-vertex alpha \u00b7 clear background",
+        "id": "opacity",
+        "title": "Transparency"
+      },
+      {
+        "detail": "Oklab vs Apple's perceptual interpolation",
+        "id": "perceptual",
+        "title": "Perceptual color space"
+      }
+    ],
+    "width": 360
+  },
+  "measurement": "Absolute encoded-sRGB differences after compositing both images over white. These are observational metrics, not a pixel-parity promise.",
+  "metrics": [
+    {
+      "id": "corners",
+      "mean_absolute_rgb_8bit": 0.75,
+      "p95_absolute_rgb_8bit": 2.0,
+      "max_absolute_rgb_8bit": 4
+    },
+    {
+      "id": "rainbow",
+      "mean_absolute_rgb_8bit": 0.727,
+      "p95_absolute_rgb_8bit": 2.0,
+      "max_absolute_rgb_8bit": 4
+    },
+    {
+      "id": "warped",
+      "mean_absolute_rgb_8bit": 3.693,
+      "p95_absolute_rgb_8bit": 14.0,
+      "max_absolute_rgb_8bit": 51
+    },
+    {
+      "id": "organic",
+      "mean_absolute_rgb_8bit": 2.182,
+      "p95_absolute_rgb_8bit": 8.0,
+      "max_absolute_rgb_8bit": 27
+    },
+    {
+      "id": "bezier",
+      "mean_absolute_rgb_8bit": 0.765,
+      "p95_absolute_rgb_8bit": 2.0,
+      "max_absolute_rgb_8bit": 4
+    },
+    {
+      "id": "linear-colors",
+      "mean_absolute_rgb_8bit": 0.347,
+      "p95_absolute_rgb_8bit": 1.0,
+      "max_absolute_rgb_8bit": 2
+    },
+    {
+      "id": "background",
+      "mean_absolute_rgb_8bit": 2.533,
+      "p95_absolute_rgb_8bit": 10.0,
+      "max_absolute_rgb_8bit": 19
+    },
+    {
+      "id": "opacity",
+      "mean_absolute_rgb_8bit": 0.552,
+      "p95_absolute_rgb_8bit": 2.0,
+      "max_absolute_rgb_8bit": 3
+    },
+    {
+      "id": "perceptual",
+      "mean_absolute_rgb_8bit": 0.869,
+      "p95_absolute_rgb_8bit": 2.0,
+      "max_absolute_rgb_8bit": 14
+    }
+  ]
+}
