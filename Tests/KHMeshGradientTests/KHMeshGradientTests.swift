@@ -260,4 +260,28 @@ final class KHMeshGradientTests: XCTestCase {
 		}
 		XCTAssertEqual(images.count, 3)
 	}
+
+	@MainActor func testOptInRenderingStatisticsAndReset() throws {
+		let view: KHMeshGradientView = try self.makeView()
+		let window: UIWindow = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.15)
+		XCTAssertEqual(view.renderingStatistics.cpuFrameCount, 0)
+		view.collectsRenderingStatistics = true
+		view.resetRenderingStatistics()
+		view.points[0] = CGPoint(x: -0.1, y: -0.1)
+		self.pump(0.15)
+		let measured: KHMeshGradientView.RenderingStatistics = view.renderingStatistics
+		XCTAssertGreaterThan(measured.cpuFrameCount, 0)
+		XCTAssertGreaterThan(measured.cpuFrameSeconds, 0)
+		XCTAssertGreaterThan(measured.encodingSeconds, 0)
+		XCTAssertEqual(measured.gpuErrorCount, 0)
+		view.collectsRenderingStatistics = false
+		view.points[0] = CGPoint(x: -0.2, y: -0.1)
+		self.pump(0.15)
+		XCTAssertEqual(view.renderingStatistics.cpuFrameCount, measured.cpuFrameCount)
+		view.resetRenderingStatistics()
+		XCTAssertEqual(view.renderingStatistics.cpuFrameCount, 0)
+		XCTAssertEqual(view.renderingStatistics.gpuFrameCount, 0)
+	}
 }

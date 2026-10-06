@@ -99,6 +99,16 @@ open class KHMeshGradientView: UIView {
 	public var renderingError: Error? { self.meshLayer.renderingError }
 	/// Successful onscreen submissions. Useful for checking that idle rendering stops.
 	public var renderedFrameCount: UInt64 { self.meshLayer.renderedFrameCount }
+	/// Enable aggregate CPU/GPU diagnostics. Off by default to avoid timing and
+	/// callback overhead in normal use. CPU timings exclude public property setters.
+	public var collectsRenderingStatistics: Bool {
+		get { self.meshLayer.collectsRenderingStatistics }
+		set { self.meshLayer.collectsRenderingStatistics = newValue }
+	}
+	public var renderingStatistics: RenderingStatistics { self.meshLayer.renderingStatistics }
+	/// In-flight GPU callbacks retain their previous statistics store, so a reset
+	/// cannot attribute an earlier phase's completions to the new phase.
+	public func resetRenderingStatistics() { self.meshLayer.resetRenderingStatistics() }
 	/// The effective model geometry, including automatically generated handles.
 	/// Copy this array into `bezierPoints` to start editing handles explicitly.
 	public var resolvedBezierPoints: [BezierPoint] { self.meshLayer.snapshot()?.vertices ?? [] }

@@ -15,10 +15,11 @@ external package dependencies.
 - A Metal-capable device or Simulator
 - The example's SwiftUI reference panels require iOS 18+. The UIKit panels work on older systems.
 
-The package builds for a deployment target of iOS 15. All 14 tests pass on iOS
-18.2 and iOS 26.5 Simulator. Device Release and Mac Catalyst builds also pass.
-The checked-in comparisons were captured on iOS 26.5 Simulator; pre-iOS-18 and
-physical-device runtime testing remains to be done.
+The package builds for a deployment target of iOS 15. All 15 tests pass on iOS
+26.5 Simulator; the original 14-test suite also passed on iOS 18.2. Device Release
+and Mac Catalyst builds pass. The checked-in comparisons were captured on iOS
+26.5 Simulator. Physical-device benchmarks run on an M1 iPad Pro with iPadOS
+18.6; pre-iOS-18 runtime testing remains to be done.
 
 ## Installation
 
@@ -152,6 +153,26 @@ the library does not perform occlusion detection.
 `renderedFrameCount` counts successful onscreen submissions. `presentationPoints`
 exposes interpolated vertex positions. `renderingError` reports initialization or
 synchronous rendering errors.
+
+Optional diagnostics expose aggregate onscreen rendering measurements:
+
+```swift
+gradientView.collectsRenderingStatistics = true
+gradientView.resetRenderingStatistics()
+// Change or animate the mesh, then inspect after GPU work completes.
+let statistics = gradientView.renderingStatistics
+let gpuMillisecondsPerDraw = statistics.gpuFrameCount == 0 ? 0 :
+	statistics.gpuFrameSeconds * 1000 / Double(statistics.gpuFrameCount)
+gradientView.collectsRenderingStatistics = false
+```
+
+CPU statistics are wall times for snapshot creation, drawable acquisition,
+encoding, and scheduling; they exclude public property setters. GPU times cover
+completed command buffers and exclude display composition. Presentation counters
+are available on device, not Simulator. Diagnostics default to off and retain
+only counters. Reset isolates subsequent frames from earlier in-flight work.
+See the [physical-device benchmark report](Documentation/Benchmarks/README.md)
+for repeated SwiftUI comparisons, memory measurements, and 120 Hz stress cases.
 
 For export and tests:
 

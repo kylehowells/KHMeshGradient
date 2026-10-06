@@ -59,7 +59,8 @@ final class MeshRenderer {
 		self.debugPipeline = try pipeline(vertex: "debug_vertex", fragment: "debug_fragment", blends: true)
 	}
 
-	func draw(_ mesh: MeshGeometry.Snapshot?, texture: MTLTexture, drawable: CAMetalDrawable? = nil) throws -> MTLCommandBuffer {
+	func draw(_ mesh: MeshGeometry.Snapshot?, texture: MTLTexture, drawable: CAMetalDrawable? = nil,
+		statistics: MeshRenderingStatisticsStore? = nil) throws -> MTLCommandBuffer {
 		guard let command: MTLCommandBuffer = self.queue.makeCommandBuffer() else { throw Failure.resourceAllocation }
 		command.label = "KHMeshGradient frame"
 		let pass: MTLRenderPassDescriptor = MTLRenderPassDescriptor()
@@ -98,6 +99,9 @@ final class MeshRenderer {
 			}
 		}
 		encoder.endEncoding()
+		if let statistics: MeshRenderingStatisticsStore = statistics {
+			command.addCompletedHandler({ command in statistics.recordGPU(command) })
+		}
 		if let drawable: CAMetalDrawable = drawable { command.present(drawable) }
 		command.commit()
 		return command

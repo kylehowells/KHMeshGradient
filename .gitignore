@@ -6,3 +6,4 @@ DerivedData/
 xcuserdata/
 *.xcresult
 Example/build/
+__pycache__/

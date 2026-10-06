@@ -27,8 +27,11 @@ does not cancel the redraw driver of a longer animation. The driver does not
 participate in UIKit completion bookkeeping. It has no visible value and does
 not define a separate clock, timer, or fixed frame rate.
 
-The renderer reads an immutable snapshot from the presentation layer and compares
-it with its last submitted snapshot. Identical snapshots, including any extra
+The renderer reads an immutable snapshot from the presentation layer while mesh
+animations are active, and from the model layer for ordinary property updates.
+Reading a stale presentation copy during a non-animated update can otherwise
+suppress a changed frame. It compares the snapshot with its last submitted
+snapshot. Identical snapshots, including any extra
 end-of-animation invalidation, produce no additional GPU submission.
 
 `UIViewPropertyAnimator` supplies an opaque CAAction that retains the native
@@ -73,6 +76,16 @@ export intentionally waits before reading a shared texture.
 The last drawable remains displayed during idle periods. There is no permanent
 CADisplayLink or CAMetalDisplayLink. Missing drawables trigger a delayed,
 coalesced retry only while rendering is enabled. No busy-wait loop is used.
+
+## Opt-in measurement
+
+`collectsRenderingStatistics` enables aggregate CPU wall-time, completed Metal
+command-buffer GPU-time, and drawable-presentation counters. It defaults to false.
+GPU callbacks use a locked store; resetting replaces the store so old in-flight
+completions cannot contaminate a new measurement. No per-frame sample arrays are
+retained by the library. The example benchmark separately samples whole-process
+CPU and physical footprint for both renderers. Its display link exists only in
+benchmark mode and is invalidated when a run finishes.
 
 ## References
 

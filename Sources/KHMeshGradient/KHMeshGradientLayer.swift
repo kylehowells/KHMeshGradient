@@ -17,6 +17,12 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	}
 	var renderedFrameCount: UInt64 = 0
 	var renderingError: Error?
+	var collectsRenderingStatistics: Bool = false {
+		didSet { if self.collectsRenderingStatistics && self.statisticsStore == nil { self.statisticsStore = MeshRenderingStatisticsStore() } }
+	}
+	private var statisticsStore: MeshRenderingStatisticsStore?
+	var renderingStatistics: KHMeshGradientView.RenderingStatistics { self.statisticsStore?.snapshot() ?? .init() }
+	func resetRenderingStatistics() { self.statisticsStore = MeshRenderingStatisticsStore() }
 	/// Declared dynamic properties drive redisplay reliably, including on OS versions
 	/// where arbitrary KVC keys interpolate without generating display callbacks.
 	@NSManaged var redrawProgress: CGFloat
@@ -126,19 +132,42 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		let target: KHMeshGradientLayer = self.model()
 		guard target.isRenderingEnabled, target.drawableSize.width > 0, target.drawableSize.height > 0,
 			let renderer: MeshRenderer = target.renderer else { return }
-		let displayed: KHMeshGradientLayer = target.presentation() ?? target
+		let statistics: MeshRenderingStatisticsStore? = target.collectsRenderingStatistics ? target.statisticsStore : nil
+		let start: Double = statistics != nil ? CACurrentMediaTime() : 0
+		// Static setters can invalidate before the presentation tree reflects the new
+		// model value. Only sample that tree while a mesh animation is actually active.
+		let hasMeshAnimation: Bool = (target.animationKeys() ?? []).contains(where: { key in
+			if key.hasPrefix("mesh_") || key.hasPrefix("redraw_") { return true }
+			guard let animation: CAPropertyAnimation = target.animation(forKey: key) as? CAPropertyAnimation,
+				let path: String = animation.keyPath else { return false }
+			return Self.isMeshKey(path)
+		})
+		let displayed: KHMeshGradientLayer = hasMeshAnimation ? (target.presentation() ?? target) : target
 		let snapshot: MeshGeometry.Snapshot? = displayed.snapshot()
 		if target.hasRendered && snapshot == target.lastSnapshot && target.drawableSize == target.lastDrawableSize { return }
+		let snapshotEnd: Double = statistics != nil ? CACurrentMediaTime() : 0
 		guard let drawable: CAMetalDrawable = target.nextDrawable() else {
 			target.scheduleDrawableRetry()
 			return
 		}
+		let drawableEnd: Double = statistics != nil ? CACurrentMediaTime() : 0
 		do {
-			let command: MTLCommandBuffer = try renderer.draw(snapshot, texture: drawable.texture)
+			let command: MTLCommandBuffer = try renderer.draw(snapshot, texture: drawable.texture, statistics: statistics)
+			let encodingEnd: Double = statistics != nil ? CACurrentMediaTime() : 0
 			// Synchronize Metal presentation with the UIKit/Core Animation transaction.
 			// For presentsWithTransaction, present the drawable directly after scheduling.
 			command.waitUntilScheduled()
+			#if !targetEnvironment(simulator)
+			if let statistics: MeshRenderingStatisticsStore = statistics {
+				drawable.addPresentedHandler({ drawable in statistics.recordPresentation(drawable) })
+			}
+			#endif
 			drawable.present()
+			if let statistics: MeshRenderingStatisticsStore = statistics {
+				let end: Double = CACurrentMediaTime()
+				statistics.recordCPU(total: end - start, snapshot: snapshotEnd - start,
+					drawable: drawableEnd - snapshotEnd, encoding: encodingEnd - drawableEnd, scheduling: end - encodingEnd)
+			}
 			target.renderedFrameCount += 1
 			target.lastSnapshot = snapshot
 			target.lastDrawableSize = target.drawableSize
