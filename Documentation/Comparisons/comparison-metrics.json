@@ -56,55 +56,55 @@
   "metrics": [
     {
       "id": "corners",
-      "mean_absolute_rgb_8bit": 0.75,
+      "mean_absolute_rgb_8bit": 0.754,
       "p95_absolute_rgb_8bit": 2.0,
       "max_absolute_rgb_8bit": 4
     },
     {
       "id": "rainbow",
-      "mean_absolute_rgb_8bit": 0.727,
+      "mean_absolute_rgb_8bit": 0.725,
       "p95_absolute_rgb_8bit": 2.0,
       "max_absolute_rgb_8bit": 4
     },
     {
       "id": "warped",
-      "mean_absolute_rgb_8bit": 3.693,
+      "mean_absolute_rgb_8bit": 3.697,
       "p95_absolute_rgb_8bit": 14.0,
       "max_absolute_rgb_8bit": 51
     },
     {
       "id": "organic",
-      "mean_absolute_rgb_8bit": 2.182,
+      "mean_absolute_rgb_8bit": 2.168,
       "p95_absolute_rgb_8bit": 8.0,
       "max_absolute_rgb_8bit": 27
     },
     {
       "id": "bezier",
-      "mean_absolute_rgb_8bit": 0.765,
+      "mean_absolute_rgb_8bit": 0.779,
       "p95_absolute_rgb_8bit": 2.0,
       "max_absolute_rgb_8bit": 4
     },
     {
       "id": "linear-colors",
-      "mean_absolute_rgb_8bit": 0.347,
+      "mean_absolute_rgb_8bit": 0.352,
       "p95_absolute_rgb_8bit": 1.0,
       "max_absolute_rgb_8bit": 2
     },
     {
       "id": "background",
-      "mean_absolute_rgb_8bit": 2.533,
+      "mean_absolute_rgb_8bit": 2.574,
       "p95_absolute_rgb_8bit": 10.0,
       "max_absolute_rgb_8bit": 19
     },
     {
       "id": "opacity",
-      "mean_absolute_rgb_8bit": 0.552,
+      "mean_absolute_rgb_8bit": 0.558,
       "p95_absolute_rgb_8bit": 2.0,
       "max_absolute_rgb_8bit": 3
     },
     {
       "id": "perceptual",
-      "mean_absolute_rgb_8bit": 0.869,
+      "mean_absolute_rgb_8bit": 0.879,
       "p95_absolute_rgb_8bit": 2.0,
       "max_absolute_rgb_8bit": 14
     }

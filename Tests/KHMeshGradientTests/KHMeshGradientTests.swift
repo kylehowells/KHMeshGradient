@@ -1,9 +1,186 @@
 import Metal
 import UIKit
 import XCTest
+import simd
 @testable import KHMeshGradient
 
 final class KHMeshGradientTests: XCTestCase {
+	@MainActor func testSingleCellEvaluatesCubicColorPerPixel() throws {
+		let view = try self.makeView()
+		view.colors = [.red, .green, .blue, .white]
+		view.subdivisions = 1
+		let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+		let controls = MeshGeometry.colorPatchData(mesh)
+		let image = try view.renderedImage(size: CGSize(width: 64, height: 64))
+		for (x, y) in [(7, 13), (19, 39), (43, 8), (55, 51)] {
+			let expected = MeshGeometry.evaluate(controls, u: Float(x) / 64 + 0.5 / 64, v: Float(y) / 64 + 0.5 / 64)
+			let pixel = self.rgba(image, x: x, y: y)
+			for channel in 0..<3 { XCTAssertEqual(Float(pixel[channel]), expected[channel] * 255, accuracy: 1) }
+		}
+		view.subdivisions = 128
+		let dense = try view.renderedImage(size: CGSize(width: 64, height: 64))
+		for (x, y) in [(7, 13), (19, 39), (43, 8), (55, 51)] {
+			let low = self.rgba(image, x: x, y: y), high = self.rgba(dense, x: x, y: y)
+			for channel in 0..<4 { XCTAssertEqual(Int(low[channel]), Int(high[channel]), accuracy: 1) }
+		}
+	}
+
+	@MainActor func testFragmentColorsPreserveAlphaAndAllInterpolationSpacesAtOneCell() throws {
+		let view = try self.makeView()
+		view.colors = [.red.withAlphaComponent(0.2), .green.withAlphaComponent(0.7), .blue.withAlphaComponent(0.4), .white.withAlphaComponent(0.9)]
+		for space in [KHMeshGradientView.ColorSpace.device, .linear, .perceptual] {
+			view.colorSpace = space
+			for smooth in [false, true] {
+				view.smoothsColors = smooth
+				view.subdivisions = 1
+				let coarse = try view.renderedImage(size: CGSize(width: 48, height: 32))
+				view.subdivisions = 128
+				let fine = try view.renderedImage(size: CGSize(width: 48, height: 32))
+				for (x, y) in [(5, 7), (18, 23), (35, 12)] {
+					let a = self.rgba(coarse, x: x, y: y), b = self.rgba(fine, x: x, y: y)
+					for channel in 0..<4 { XCTAssertEqual(Int(a[channel]), Int(b[channel]), accuracy: 1, "\(space), smooth=\(smooth)") }
+				}
+			}
+		}
+	}
+
+	@MainActor func testAdaptiveDensityTracksPixelsAndCurvatureAndHonorsFixedOverride() throws {
+		let view = try self.makeView()
+		func density(_ pixels: SIMD2<Float>) throws -> Int {
+			let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+			return MeshGeometry.subdivisionCount(mesh, patches: MeshGeometry.patchData(mesh), pixels: pixels)
+		}
+		XCTAssertEqual(view.subdivisions, 0)
+		XCTAssertEqual(try density(SIMD2<Float>(304, 176)), 1)
+		view.bezierPoints = view.resolvedBezierPoints
+		view.bezierPoints![1].bottomControlPoint = CGPoint(x: 0.2, y: 0.25)
+		view.bezierPoints![3].topControlPoint = CGPoint(x: 0.2, y: 0.75)
+		let small = try density(SIMD2<Float>(152, 88))
+		let large = try density(SIMD2<Float>(1216, 704))
+		XCTAssertGreaterThan(small, 1)
+		XCTAssertGreaterThan(large, small)
+		view.maximumGeometryError = 0.05
+		XCTAssertGreaterThan(try density(SIMD2<Float>(152, 88)), small)
+		view.colors = [.black, .white, .red, .green]
+		let unchanged = try density(SIMD2<Float>(152, 88))
+		view.colors = [.green, .red, .white, .black]
+		XCTAssertEqual(try density(SIMD2<Float>(152, 88)), unchanged)
+		view.subdivisions = 7
+		XCTAssertEqual(try density(SIMD2<Float>(1216, 704)), 7)
+	}
+
+	@MainActor func testFragmentPrecisionSelectionPreservesExtendedRangeColors() throws {
+		let view = try self.makeView()
+		func usesHalf() throws -> Bool {
+			let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+			return MeshGeometry.fragmentColorCoefficients(mesh).usesHalf
+		}
+		#if arch(arm64)
+		XCTAssertTrue(try usesHalf())
+		#else
+		XCTAssertFalse(try usesHalf())
+		#endif
+		view.colors[0] = .red.withAlphaComponent(0.3)
+		XCTAssertFalse(try usesHalf())
+		view.colors[0] = .red
+		view.colorSpace = .perceptual
+		XCTAssertFalse(try usesHalf())
+		view.colorSpace = .device
+		let color = try XCTUnwrap(CGColor(colorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB)!, components: [1_000_000, 0, 0, 1]))
+		view.resolvedColors = Array(repeating: color, count: 4)
+		XCTAssertFalse(try usesHalf(), "Coefficients outside half's finite range use the float pipeline.")
+		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
+		XCTAssertEqual(pixel, [255, 0, 0, 255])
+	}
+
+	@MainActor func testTessellationDebugShowsSelectedCellDiagonal() throws {
+		let view = try self.makeView()
+		view.colors = Array(repeating: .red, count: 4)
+		view.subdivisions = 1
+		view.debugMode = .tessellation
+		let image = try view.renderedImage(size: CGSize(width: 64, height: 64))
+		let diagonal = self.rgba(image, x: 31, y: 32)
+		let interior = self.rgba(image, x: 16, y: 16)
+		XCTAssertGreaterThan(diagonal[1], 200, "Show the actual diagonal between the two selected triangles.")
+		XCTAssertLessThan(interior[1], 5, "A single-cell patch must not show the old fixed inspection grid.")
+	}
+
+	@MainActor func testAdaptiveDensityAccountsForMixedDerivativeAndBoundsWork() throws {
+		let view = try self.makeView()
+		// Bilinear geometry can have straight edges but a nonlinear parameter map.
+		view.points[3] = CGPoint(x: 0.3, y: 0.6)
+		let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+		XCTAssertGreaterThan(MeshGeometry.subdivisionCount(mesh, patches: MeshGeometry.patchData(mesh), pixels: SIMD2<Float>(720, 480)), 1)
+		view.meshSize = .init(width: 64, height: 64)
+		view.points = (0..<4096).map({ index -> CGPoint in
+			let x: CGFloat = CGFloat(index % 64) / 63
+			let y: CGFloat = CGFloat(index / 64) / 63
+			let offset: CGFloat = index % 2 == 0 ? 0.5 : 0
+			return CGPoint(x: x, y: y + offset)
+		})
+		view.colors = Array(repeating: .red, count: 4096)
+		let large = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+		let count = MeshGeometry.subdivisionCount(large, patches: MeshGeometry.patchData(large), pixels: SIMD2<Float>(16384, 16384))
+		XCTAssertLessThanOrEqual(63 * 63 * count * count, 65_536)
+	}
+
+	@MainActor func testAdaptiveTrianglesRespectScreenSpaceGeometryTarget() throws {
+		let view = try self.makeView()
+		view.bezierPoints = view.resolvedBezierPoints
+		view.bezierPoints![1].bottomControlPoint = CGPoint(x: 0.2, y: 0.25)
+		view.bezierPoints![3].topControlPoint = CGPoint(x: 0.2, y: 0.75)
+		let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
+		let net = MeshGeometry.positionPatchData(mesh)
+		let pixels = SIMD2<Float>(720, 480)
+		let n = MeshGeometry.subdivisionCount(mesh, patches: net, pixels: pixels, positionStride: 16)
+		XCTAssertLessThan(n, 128, "This fixture must exercise the error target without hitting the density cap.")
+		for sample in 0..<300 {
+			let u: Float = Float((sample * 37) % 997) / 997
+			let v: Float = Float((sample * 61) % 991) / 991
+			let x = floor(u * Float(n)), y = floor(v * Float(n))
+			let a = MeshGeometry.evaluate(net, u: x / Float(n), v: y / Float(n))
+			let b = MeshGeometry.evaluate(net, u: (x + 1) / Float(n), v: y / Float(n))
+			let c = MeshGeometry.evaluate(net, u: x / Float(n), v: (y + 1) / Float(n))
+			let d = MeshGeometry.evaluate(net, u: (x + 1) / Float(n), v: (y + 1) / Float(n))
+			let fu = u * Float(n) - x, fv = v * Float(n) - y
+			let linear = fu + fv <= 1 ? a * (1 - fu - fv) + b * fu + c * fv : b * (1 - fv) + d * (fu + fv - 1) + c * (1 - fu)
+			let exact = MeshGeometry.evaluate(net, u: u, v: v)
+			let difference = SIMD2<Float>(linear.x - exact.x, linear.y - exact.y) * pixels
+			XCTAssertLessThanOrEqual(simd_length(difference), mesh.maximumGeometryError)
+		}
+	}
+
+	@MainActor func testAdaptiveDensityFollowsPresentationGeometryAndStopsAtIdle() throws {
+		let view = try self.makeView()
+		view.collectsRenderingStatistics = true
+		let window = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.1)
+		XCTAssertEqual(view.renderingStatistics.lastSubdivisionCount, 1)
+		view.bezierPoints = view.resolvedBezierPoints
+		let animator = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: {
+			view.bezierPoints![1].bottomControlPoint = CGPoint(x: 0.2, y: 0.25)
+			view.bezierPoints![3].topControlPoint = CGPoint(x: 0.2, y: 0.75)
+		})
+		animator.startAnimation()
+		animator.pauseAnimation()
+		animator.fractionComplete = 0.7
+		self.pump(0.1)
+		XCTAssertGreaterThan(view.renderingStatistics.lastSubdivisionCount, 1)
+		XCTAssertGreaterThan(view.renderingStatistics.triangleCount, 0)
+		let count = view.renderedFrameCount
+		self.pump(0.15)
+		XCTAssertEqual(view.renderedFrameCount, count)
+		view.subdivisions = 7
+		self.pump(0.1)
+		XCTAssertEqual(view.renderingStatistics.lastSubdivisionCount, 7, "Policy changes apply even while the animator is paused.")
+		view.subdivisions = 0
+		animator.fractionComplete = 0
+		self.pump(0.1)
+		XCTAssertEqual(view.renderingStatistics.lastSubdivisionCount, 1)
+		animator.stopAnimation(true)
+	}
+
 	@MainActor func testPropertyAnimatorScrubsPausesResumesAndFinishes() throws {
 		let view: KHMeshGradientView = try self.makeView()
 		let window: UIWindow = self.attach(view)

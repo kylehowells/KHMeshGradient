@@ -22,6 +22,7 @@ final class GalleryViewController: UIViewController {
 		self._view.scrubSlider.addTarget(self, action: #selector(self.scrubChanged), for: .valueChanged)
 		self._view.resumeButton.addTarget(self, action: #selector(self.resumeMeshes), for: .touchUpInside)
 		self._view.debugControl.addTarget(self, action: #selector(self.debugChanged), for: .valueChanged)
+		self._view.geometryControl.addTarget(self, action: #selector(self.geometryChanged), for: .valueChanged)
 	}
 
 	@objc private func animateMesh() { for card in self.cards { card.animateMesh() } }
@@ -31,6 +32,9 @@ final class GalleryViewController: UIViewController {
 	@objc private func debugChanged() {
 		let modes: [KHMeshGradientView.DebugMode] = [.none, .mesh, .controlPoints, .tessellation]
 		for card in self.cards { card._view.gradient.debugMode = modes[self._view.debugControl.selectedSegmentIndex] }
+	}
+	@objc private func geometryChanged() {
+		for card in self.cards { card._view.gradient.subdivisions = self._view.geometryControl.selectedSegmentIndex == 0 ? 0 : 48 }
 	}
 }
 
@@ -73,14 +77,16 @@ final class GalleryView: UIView {
 		return button
 	}()
 	let debugControl: UISegmentedControl = UISegmentedControl(items: ["Gradient", "Mesh", "Handles", "Grid"])
+	let geometryControl: UISegmentedControl = UISegmentedControl(items: ["Adaptive geometry", "Fixed 48"])
 	let scrollView: UIScrollView = UIScrollView()
 	var cards: [MeshCardView] = [] { didSet { self.setNeedsLayout() } }
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.backgroundColor = .systemGroupedBackground
-		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.scrubLabel, self.scrubSlider, self.resumeButton, self.scrollView] { self.addSubview(view) }
+		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.geometryControl, self.scrubLabel, self.scrubSlider, self.resumeButton, self.scrollView] { self.addSubview(view) }
 		self.debugControl.selectedSegmentIndex = 0
+		self.geometryControl.selectedSegmentIndex = 0
 	}
 	@available(*, unavailable)
 	required init?(coder: NSCoder) { fatalError() }
@@ -94,10 +100,11 @@ final class GalleryView: UIView {
 		self.animateButton.frame = CGRect(x: 20, y: top + 72, width: 92, height: 36)
 		self.resetButton.frame = CGRect(x: 118, y: top + 72, width: 64, height: 36)
 		self.debugControl.frame = CGRect(x: 20, y: top + 118, width: width - 40, height: 32)
-		self.scrubLabel.frame = CGRect(x: 20, y: top + 162, width: 80, height: 32)
-		self.scrubSlider.frame = CGRect(x: 105, y: top + 162, width: max(40, width - 205), height: 32)
-		self.resumeButton.frame = CGRect(x: width - 92, y: top + 162, width: 72, height: 32)
-		let scrollTop: CGFloat = top + 208
+		self.geometryControl.frame = CGRect(x: 20, y: top + 162, width: width - 40, height: 32)
+		self.scrubLabel.frame = CGRect(x: 20, y: top + 202, width: 80, height: 32)
+		self.scrubSlider.frame = CGRect(x: 105, y: top + 202, width: max(40, width - 205), height: 32)
+		self.resumeButton.frame = CGRect(x: width - 92, y: top + 202, width: 72, height: 32)
+		let scrollTop: CGFloat = top + 248
 		self.scrollView.frame = CGRect(x: 0, y: scrollTop, width: width, height: self.bounds.height - scrollTop)
 		var y: CGFloat = 0
 		let cardHeight: CGFloat = min(330, (width - 52) * 0.34 + 110)

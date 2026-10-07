@@ -1,5 +1,9 @@
 # Geometry density, image convergence, and SwiftUI internals
 
+These are preserved experiments at commit `65ec8ff`. The
+[adaptive renderer report](../Adaptive/README.md) covers the implementation that
+followed. Check out that commit to reproduce the original measurements below.
+
 Fixed tessellation density explains a large part of the remaining KH GPU cost.
 Reducing each patch from 48 to 16 subdivisions cuts its triangle count by 89%,
 the measured 60-view GPU command envelope by 74%, and extra app footprint by 24%.

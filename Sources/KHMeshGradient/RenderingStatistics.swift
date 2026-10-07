@@ -11,6 +11,11 @@ extension KHMeshGradientView {
 		public internal(set) var commandBufferCount: Double = 0
 		/// Fractional render-pass contribution: sum across views for the pass count.
 		public internal(set) var renderPassCount: Double = 0
+		/// Geometry segments per patch axis in the last submitted frame, after
+		/// adaptive selection or fixed-density clamping. Zero before first submission.
+		public internal(set) var lastSubdivisionCount: Int = 0
+		/// Total gradient triangles submitted; excludes diagnostic overlay triangles.
+		public internal(set) var triangleCount: UInt64 = 0
 		public internal(set) var cpuFrameCount: UInt64 = 0
 		public internal(set) var cpuFrameSeconds: Double = 0
 		public internal(set) var snapshotSeconds: Double = 0
@@ -43,11 +48,13 @@ final class MeshRenderingStatisticsStore: @unchecked Sendable {
 		return self.value
 	}
 
-	func recordCPU(total: Double, snapshot: Double, drawable: Double, encoding: Double, scheduling: Double, commandBuffers: Double = 1, renderPasses: Double = 1) {
+	func recordCPU(total: Double, snapshot: Double, drawable: Double, encoding: Double, scheduling: Double, commandBuffers: Double = 1, renderPasses: Double = 1, subdivisions: Int = 0, triangles: UInt64 = 0) {
 		self.lock.lock()
 		defer { self.lock.unlock() }
 		self.value.commandBufferCount += commandBuffers
 		self.value.renderPassCount += renderPasses
+		self.value.lastSubdivisionCount = subdivisions
+		self.value.triangleCount += triangles
 		self.value.cpuFrameCount += 1
 		self.value.cpuFrameSeconds += total
 		self.value.snapshotSeconds += snapshot

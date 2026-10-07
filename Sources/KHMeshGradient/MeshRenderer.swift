@@ -8,7 +8,7 @@ final class MeshRenderer {
 	private let queue: MTLCommandQueue
 	private let library: MTLLibrary
 	private let maximumRenderTargets: Int
-	private struct PipelineKey: Hashable { var target: Int; var count: Int; var debug: Bool }
+	private struct PipelineKey: Hashable { var target: Int; var count: Int; var debug: Bool; var halfColors: Bool }
 	private var pipelines: [PipelineKey: MTLRenderPipelineState] = [:]
 	private var pipelineOrder: [PipelineKey] = []
 	private let bufferPool: MeshBufferPool
@@ -33,12 +33,14 @@ final class MeshRenderer {
 		let drawable: CAMetalDrawable?
 		let texture: MTLTexture
 		let mesh: MeshGeometry.Snapshot?
-		let colorNets: [SIMD4<Float>]?
+		let colorNets: MeshGeometry.FragmentColors?
 		let statistics: MeshRenderingStatisticsStore?
 		let snapshotSeconds: Double
 		let drawableSeconds: Double
 		var encodingSeconds: Double
 		var renderPassShare: Double = 1
+		var subdivisionCount: Int = 0
+		var triangleCount: UInt64 = 0
 		let didFail: (Error) -> Void
 		let didSubmit: () -> Void
 	}
@@ -84,8 +86,8 @@ final class MeshRenderer {
 		_ = try self.pipeline(target: 0, count: 1, debug: true)
 	}
 
-	private func pipeline(target: Int, count: Int, debug: Bool) throws -> MTLRenderPipelineState {
-		let key = PipelineKey(target: target, count: count, debug: debug)
+	private func pipeline(target: Int, count: Int, debug: Bool, halfColors: Bool = false) throws -> MTLRenderPipelineState {
+		let key = PipelineKey(target: target, count: count, debug: debug, halfColors: halfColors)
 		if let cached = self.pipelines[key] {
 			self.pipelineOrder.removeAll(where: { $0 == key })
 			self.pipelineOrder.append(key)
@@ -95,7 +97,13 @@ final class MeshRenderer {
 		let prefix = debug ? "debug" : "mesh"
 		let fragment = "\(prefix)_fragment" + (target == 0 ? "" : "_\(target)")
 		descriptor.vertexFunction = self.library.makeFunction(name: "\(prefix)_vertex")
-		descriptor.fragmentFunction = self.library.makeFunction(name: fragment)
+		if debug { descriptor.fragmentFunction = self.library.makeFunction(name: fragment) }
+		else {
+			let constants = MTLFunctionConstantValues()
+			var halfColors = halfColors
+			constants.setConstantValue(&halfColors, type: .bool, index: 0)
+			descriptor.fragmentFunction = try self.library.makeFunction(name: fragment, constantValues: constants)
+		}
 		for index in 0..<count {
 			let attachment: MTLRenderPipelineColorAttachmentDescriptor = descriptor.colorAttachments[index]
 			attachment.pixelFormat = .bgra8Unorm
@@ -119,7 +127,7 @@ final class MeshRenderer {
 		return Frame(command: command, pool: self.bufferPool)
 	}
 
-	func enqueue(_ mesh: MeshGeometry.Snapshot?, colorNets: [SIMD4<Float>]?, drawable: CAMetalDrawable, statistics: MeshRenderingStatisticsStore?,
+	func enqueue(_ mesh: MeshGeometry.Snapshot?, colorNets: MeshGeometry.FragmentColors?, drawable: CAMetalDrawable, statistics: MeshRenderingStatisticsStore?,
 		snapshotSeconds: Double, drawableSeconds: Double, didFail: @escaping (Error) -> Void, didSubmit: @escaping () -> Void) throws {
 		if self.pendingFrame == nil { self.pendingFrame = try self.makeFrame() }
 		let frame = self.pendingFrame!
@@ -183,7 +191,8 @@ final class MeshRenderer {
 		for draw in frame.draws {
 			draw.statistics?.recordCPU(total: draw.snapshotSeconds + draw.drawableSeconds + draw.encodingSeconds + scheduling,
 				snapshot: draw.snapshotSeconds, drawable: draw.drawableSeconds, encoding: draw.encodingSeconds,
-				scheduling: scheduling, commandBuffers: share, renderPasses: draw.renderPassShare)
+				scheduling: scheduling, commandBuffers: share, renderPasses: draw.renderPassShare,
+				subdivisions: draw.subdivisionCount, triangles: draw.triangleCount)
 			draw.didSubmit()
 		}
 	}
@@ -211,23 +220,34 @@ final class MeshRenderer {
 		return buffer
 	}
 
-	private func encodeMesh(_ mesh: MeshGeometry.Snapshot?, encoder: MTLRenderCommandEncoder, arena: MeshBufferArena, pixels: SIMD2<Float>, colorNets: [SIMD4<Float>]? = nil, target: Int = 0, targetCount: Int = 1) throws {
+	private func encodeMesh(_ mesh: MeshGeometry.Snapshot?, encoder: MTLRenderCommandEncoder, arena: MeshBufferArena, pixels: SIMD2<Float>, colorNets: MeshGeometry.FragmentColors? = nil, target: Int = 0, targetCount: Int = 1) throws -> Int {
 		if let mesh: MeshGeometry.Snapshot = mesh {
-			let patches: [SIMD4<Float>] = MeshGeometry.patchData(mesh, colorNets: colorNets)
+			let patches: [SIMD4<Float>] = MeshGeometry.positionPatchData(mesh)
+			let count = MeshGeometry.subdivisionCount(mesh, patches: patches, pixels: pixels, positionStride: 16)
+			let colors = colorNets ?? MeshGeometry.fragmentColorCoefficients(mesh)
 			let upload: (buffer: MTLBuffer, offset: Int)
+			let colorUpload: (buffer: MTLBuffer, offset: Int)
 			let indices: MTLBuffer
-			do { upload = try arena.upload(patches); indices = try self.indices(subdivisions: mesh.subdivisions) }
+			do {
+				upload = try arena.upload(patches)
+				switch colors {
+				case .half(let data): colorUpload = try arena.upload(data)
+				case .float(let data): colorUpload = try arena.upload(data)
+				}
+				indices = try self.indices(subdivisions: count)
+			}
 			catch { throw error }
-			var subdivisions: UInt32 = UInt32(mesh.subdivisions)
+			var subdivisions: UInt32 = UInt32(count)
 			var space: UInt32 = UInt32(mesh.colorSpace.rawValue)
-			encoder.setRenderPipelineState(try self.pipeline(target: target, count: targetCount, debug: false))
+			encoder.setRenderPipelineState(try self.pipeline(target: target, count: targetCount, debug: false, halfColors: colors.usesHalf))
 			encoder.setVertexBuffer(upload.buffer, offset: upload.offset, index: 0)
 			encoder.setVertexBytes(&subdivisions, length: MemoryLayout<UInt32>.size, index: 1)
 			encoder.setFragmentBytes(&space, length: MemoryLayout<UInt32>.size, index: 0)
-			encoder.drawIndexedPrimitives(type: .triangle, indexCount: 6 * mesh.subdivisions * mesh.subdivisions,
+			encoder.setFragmentBuffer(colorUpload.buffer, offset: colorUpload.offset, index: 1)
+			encoder.drawIndexedPrimitives(type: .triangle, indexCount: 6 * count * count,
 				indexType: .uint32, indexBuffer: indices, indexBufferOffset: 0, instanceCount: (mesh.size.width - 1) * (mesh.size.height - 1))
 			if mesh.debugMode != .none {
-				let debug: [DebugVertex] = self.debugVertices(mesh, pixels: pixels)
+				let debug: [DebugVertex] = self.debugVertices(mesh, patches: patches, pixels: pixels, subdivisions: count)
 				if !debug.isEmpty {
 					let debugUpload: (buffer: MTLBuffer, offset: Int)
 					do { debugUpload = try arena.upload(debug) }
@@ -237,7 +257,9 @@ final class MeshRenderer {
 					encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: debug.count)
 				}
 			}
+			return count
 		}
+		return 0
 	}
 
 
@@ -271,8 +293,11 @@ final class MeshRenderer {
 				for (target, index) in group.enumerated() {
 					let draw = frame.draws[index]
 					let start = measured ? CACurrentMediaTime() : 0
-					try self.encodeMesh(draw.mesh, encoder: encoder, arena: frame.arena,
+					let subdivisions = try self.encodeMesh(draw.mesh, encoder: encoder, arena: frame.arena,
 						pixels: SIMD2<Float>(Float(draw.texture.width), Float(draw.texture.height)), colorNets: draw.colorNets, target: target, targetCount: group.count)
+					frame.draws[index].subdivisionCount = subdivisions
+					let patchCount = draw.mesh.map({ ($0.size.width - 1) * ($0.size.height - 1) }) ?? 0
+					frame.draws[index].triangleCount = UInt64(2 * subdivisions * subdivisions * patchCount)
 					frame.draws[index].encodingSeconds = measured ? CACurrentMediaTime() - start : 0
 				}
 				encoder.endEncoding()
@@ -328,7 +353,7 @@ final class MeshRenderer {
 		return UIImage(cgImage: image, scale: scale, orientation: .up)
 	}
 
-	private func debugVertices(_ mesh: MeshGeometry.Snapshot, pixels: SIMD2<Float>) -> [DebugVertex] {
+	private func debugVertices(_ mesh: MeshGeometry.Snapshot, patches: [SIMD4<Float>], pixels: SIMD2<Float>, subdivisions: Int) -> [DebugVertex] {
 		var vertices: [DebugVertex] = []
 		let white: SIMD4<Float> = SIMD4<Float>(1, 1, 1, 0.9)
 		let black: SIMD4<Float> = SIMD4<Float>(0, 0, 0, 0.8)
@@ -349,16 +374,16 @@ final class MeshRenderer {
 				}
 			}
 		}
-		let patches: [SIMD4<Float>] = MeshGeometry.patchData(mesh)
-		let count: Int = patches.count / 32
+		let count: Int = patches.count / 16
 		for patch in 0..<count {
-			let net: [SIMD4<Float>] = Array(patches[(patch * 32)..<(patch * 32 + 16)])
-			let tracks: [Float] = mesh.debugMode == .tessellation ? (0...8).map({ Float($0) / 8 }) : [0, 1]
+			let net: [SIMD4<Float>] = Array(patches[(patch * 16)..<(patch * 16 + 16)])
+			let tracks: [Float] = mesh.debugMode == .tessellation ? (0...subdivisions).map({ Float($0) / Float(subdivisions) }) : [0, 1]
+			let segments = mesh.debugMode == .tessellation ? subdivisions : 48
 			for track in tracks {
 				for axis in 0..<2 {
 					var previous: SIMD2<Float>?
-					for step in 0...48 {
-						let t: Float = Float(step) / 48
+					for step in 0...segments {
+						let t: Float = Float(step) / Float(segments)
 						let p: SIMD4<Float> = MeshGeometry.evaluate(net, u: axis == 0 ? t : track, v: axis == 0 ? track : t)
 						let point: SIMD2<Float> = SIMD2<Float>(p.x, p.y)
 						if let previous: SIMD2<Float> = previous {
@@ -366,6 +391,16 @@ final class MeshRenderer {
 							line(previous, point, color: white)
 						}
 						previous = point
+					}
+				}
+			}
+			if mesh.debugMode == .tessellation {
+				for y in 0..<subdivisions {
+					for x in 0..<subdivisions {
+						let a = MeshGeometry.evaluate(net, u: Float(x + 1) / Float(subdivisions), v: Float(y) / Float(subdivisions))
+						let b = MeshGeometry.evaluate(net, u: Float(x) / Float(subdivisions), v: Float(y + 1) / Float(subdivisions))
+						line(SIMD2<Float>(a.x, a.y), SIMD2<Float>(b.x, b.y), color: black, thickness: 2)
+						line(SIMD2<Float>(a.x, a.y), SIMD2<Float>(b.x, b.y), color: white, thickness: 1)
 					}
 				}
 			}

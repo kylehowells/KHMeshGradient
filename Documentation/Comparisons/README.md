@@ -4,6 +4,9 @@ The checked-in contact sheet contains nine pairs of actual renders, not mockups.
 The left column is KHMeshGradientView's Metal output and the right column is
 SwiftUI MeshGradient. Captured on an iPad Simulator running iOS 26.5, using
 Xcode 26.6. Each render is 360 × 240 pixels, with scale 1 and light appearance.
+KH uses adaptive geometry (0.5 framebuffer-pixel target) and per-fragment color
+evaluation. SwiftUI controls its own geometry. Its reference images remain
+byte-identical to the preserved input fixtures from the earlier renderer.
 
 ![Side-by-side comparisons](contact-sheet.png)
 
@@ -19,15 +22,15 @@ resizing, or replacing either renderer's output.
 
 | Fixture | Mean absolute RGB difference, 0–255 | 95th percentile |
 | --- | ---: | ---: |
-| Four corners | 0.750 | 2 |
-| Regular 3 × 3 rainbow | 0.727 | 2 |
-| Moved center | 3.693 | 14 |
-| Irregular 4 × 4 | 2.182 | 8 |
-| Explicit Bézier handles | 0.765 | 2 |
-| Unsmoothed colors | 0.347 | 1 |
-| Inset mesh with background | 2.533 | 10 |
-| Transparency | 0.552 | 2 |
-| Perceptual colors | 0.869 | 2 |
+| Four corners | 0.754 | 2 |
+| Regular 3 × 3 rainbow | 0.725 | 2 |
+| Moved center | 3.697 | 14 |
+| Irregular 4 × 4 | 2.168 | 8 |
+| Explicit Bézier handles | 0.779 | 2 |
+| Unsmoothed colors | 0.352 | 1 |
+| Inset mesh with background | 2.574 | 10 |
+| Transparency | 0.558 | 2 |
+| Perceptual colors | 0.879 | 2 |
 
 These are observational measurements, not a compatibility guarantee or pass/fail
 threshold. The largest differences come from automatic geometry inference in

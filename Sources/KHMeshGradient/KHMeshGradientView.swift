@@ -49,7 +49,7 @@ open class KHMeshGradientView: UIView {
 		case mesh
 		/// Also show the active Bézier handles and their connecting lines.
 		case controlPoints
-		/// Show a sampled parameter grid within every patch.
+		/// Show the actual selected triangle grid within every patch.
 		case tessellation
 	}
 
@@ -104,8 +104,15 @@ open class KHMeshGradientView: UIView {
 	open var smoothsColors: Bool = true { didSet { self.updateMesh(resolvesColors: false) } }
 	open var colorSpace: ColorSpace = .device { didSet { self.updateMesh(resolvesColors: false) } }
 	open var debugMode: DebugMode = .none { didSet { self.updateMesh(resolvesColors: false) } }
-	/// Tessellation segments per patch axis, clamped to 2...128. Default: 48.
-	open var subdivisions: Int = 48 { didSet { self.updateMesh(resolvesColors: false) } }
+	/// Geometry segments per patch axis. Zero (the default) selects density from
+	/// curvature and framebuffer size. Positive values select a fixed density,
+	/// clamped to 1...128. Color is evaluated per pixel at every density.
+	open var subdivisions: Int = 0 { didSet { self.updateMesh(resolvesColors: false) } }
+	/// Target geometric deviation in framebuffer pixels for adaptive tessellation.
+	/// Default: 0.5; clamped to 0.05...8. Density is capped at 128 segments and
+	/// 65,536 cells per mesh, so extreme inputs can exceed this target. Fixed
+	/// `subdivisions` bypass this setting. This is not a color or pixel-parity bound.
+	open var maximumGeometryError: CGFloat = 0.5 { didSet { self.updateMesh(resolvesColors: false) } }
 	/// Explicitly suspend GPU rendering. Changes are displayed when resumed.
 	open var isRenderingSuspended: Bool = false { didSet { self.updateRenderingAvailability() } }
 
@@ -291,10 +298,11 @@ open class KHMeshGradientView: UIView {
 		self.meshLayer.smoothsColors = self.smoothsColors
 		self.meshLayer.colorSpace = self.colorSpace
 		self.meshLayer.debugMode = self.debugMode
-		self.meshLayer.subdivisions = min(128, max(2, self.subdivisions))
+		self.meshLayer.subdivisions = min(128, max(0, self.subdivisions))
+		self.meshLayer.maximumGeometryError = self.maximumGeometryError.isFinite ? Float(min(8, max(0.05, self.maximumGeometryError))) : 0.5
 		let mesh: MeshGeometry.Snapshot? = error == nil ? .init(size: size, vertices: vertices, colors: self.cachedRGBAColors,
 			background: self.cachedRGBABackground, smoothsColors: self.smoothsColors, colorSpace: self.colorSpace,
-			debugMode: self.debugMode, subdivisions: self.meshLayer.subdivisions) : nil
+			debugMode: self.debugMode, subdivisions: self.meshLayer.subdivisions, maximumGeometryError: self.meshLayer.maximumGeometryError) : nil
 		let action: CAAction? = self.meshLayer.needsMeshWrite(mesh) && !CATransaction.disableActions() && UIView.areAnimationsEnabled ? super.action(for: self.meshLayer, forKey: "backgroundColor") : nil
 		self.configurationAnimationTemplate = action
 		self.meshLayer.configure(mesh, colors: colors, background: self.cachedBackground, animates: action != nil && !(action is NSNull))

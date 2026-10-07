@@ -73,11 +73,15 @@ def main():
     widths = sorted({r['width'] for r in rows})
     for ax, key, title in zip(axes, ['vs_kh128_white', 'vs_swiftui_white'],
                                ['Tessellation error versus KH128', 'Difference versus SwiftUI']):
+        fixed_levels = [n for n in levels if n > 0]
         for width in widths:
-            values = [np.mean([r[key]['mae'] for r in rows if r['width'] == width and r['subdivisions'] == n]) for n in levels]
-            ax.plot(levels, values, marker='o', label=f'{width}px wide · mean of 15 fixtures')
+            values = [np.mean([r[key]['mae'] for r in rows if r['width'] == width and r['subdivisions'] == n]) for n in fixed_levels]
+            line = ax.plot(fixed_levels, values, marker='o', label=f'{width}px wide · fixed density')[0]
+            if 0 in levels:
+                adaptive = np.mean([r[key]['mae'] for r in rows if r['width'] == width and r['subdivisions'] == 0])
+                ax.axhline(adaptive, linestyle='--', color=line.get_color(), label=f'{width}px wide · adaptive mean')
         ax.set_xscale('log', base=2)
-        ax.set_xticks(levels, labels=[str(n) for n in levels])
+        ax.set_xticks(fixed_levels, labels=[str(n) for n in fixed_levels])
         ax.set_xlabel('Subdivisions per patch axis')
         ax.set_ylabel('Mean absolute RGB error (8-bit)')
         ax.set_title(title)
@@ -87,7 +91,8 @@ def main():
     fig.savefig(args.output / 'error-by-resolution.png', dpi=150)
     plt.close(fig)
     selected = ['corners', 'organic', 'organic-explicit', 'strong-handles', 'random-17', 'perceptual']
-    columns = [('SwiftUI', 'swiftui'), ('KH · 4', 'n4'), ('KH · 8', 'n8'), ('KH · 16', 'n16'), ('KH · 48', 'n48'), ('KH · 128', 'n128')]
+    columns = ([('SwiftUI', 'swiftui'), ('KH · adaptive', 'n0'), ('KH · 1', 'n1'), ('KH · 8', 'n8'), ('KH · 48', 'n48'), ('KH · 128', 'n128')]
+               if 0 in levels else [('SwiftUI', 'swiftui'), ('KH · 4', 'n4'), ('KH · 8', 'n8'), ('KH · 16', 'n16'), ('KH · 48', 'n48'), ('KH · 128', 'n128')])
     margin, gap, cell_width, cell_height = 24, 12, 304, 176
     sheet = Image.new('RGB', (margin * 2 + len(columns) * (cell_width + gap) - gap,
                               105 + len(selected) * (cell_height + 52) + margin), '#f2f3f7')

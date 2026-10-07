@@ -84,13 +84,35 @@ boundary curves exactly. Interior color interpolation is bicubic, with zero
 outer color derivatives and monotonic tangents at interior color extrema.
 Unsmoothed colors use bilinear interpolation independently of patch geometry.
 
-The CPU uploads 16 position controls and 16 color controls per patch. Boundary
-vectors use stack SIMD matrices rather than four small heap arrays. The vertex
-shader uses a shared indexed parameter grid and patch instance IDs to evaluate
-the bicubic surfaces. Triangle order, tessellation density, and shading remain
-unchanged; indexed draws permit reuse of vertices shared by adjacent triangles. The fragment shader converts
-the interpolated color back from the selected interpolation space and writes
-premultiplied-alpha sRGB. Positions and colors need no per-frame CPU tessellation.
+The CPU uploads separate position and color buffers: 16 float4 geometry controls
+and 16 mixed-basis color coefficients per patch. Boundary vectors use stack SIMD
+matrices. Color coefficients convert one axis to a power basis for Horner
+evaluation and retain Bernstein controls in the other to reduce cancellation.
+Opaque device colors use eight-byte packed half4 coefficients with 16-bit integer
+storage on arm64; translucent, perceptual/linear, out-of-half-range inputs, and
+Intel Catalyst use float4. Metal function constants specialize the pipelines so
+unused precision/color-conversion paths have no runtime branch. Opaque alpha is
+exactly one. No dithering or private framework code is used.
+
+The vertex shader evaluates only position and forwards UV and a flat patch ID.
+The fragment shader evaluates the complete color surface at that UV, converts
+from the interpolation space if needed, and writes premultiplied sRGB. Color
+sampling is independent of geometry density; UV approximation still depends
+on geometry. No per-frame CPU vertex tessellation is required.
+
+Zero subdivisions selects adaptive geometry. Bounds on both pure second
+derivatives and the mixed derivative are computed in framebuffer pixels. For
+each patch, the triangle position error estimate is `(uu + vv + 2*uv)/(8*n*n)`.
+The maximum across patches determines a shared power-of-two density, targeting
+`maximumGeometryError` (0.5 pixels by default). Including the mixed derivative
+catches nonlinear parameter maps even with straight edges. Density is limited
+to 128 and 65,536 cells across a mesh; fixed positive subdivisions bypass the
+automatic error target/cell budget. Uniform density prevents cracks on shared
+patch edges. Selection uses current presentation geometry during animations and
+current texture dimensions after resizing or display-scale changes.
+
+The tessellation overlay draws the actual selected cell edges and diagonals;
+mesh/handle modes retain smooth boundary curves and control-point markers.
 
 The mesh pass replaces pixels inside the mesh instead of blending against the
 mesh background; this preserves SwiftUI's outside-only background semantics.
@@ -100,7 +122,8 @@ Debug overlays use a separate premultiplied blending pipeline.
 
 The command queue and pipeline cache are shared. Pipeline variants select one
 color attachment, with writes to other attachments disabled. Their cache is
-bounded to 32 states; the shared triangle-index cache retains at most eight grids.
+bounded to 32 states across output targets and color precision; the shared
+triangle-index cache retains at most eight grids.
 Per-command upload arenas use aligned regions in reusable shared buffers. Buffers
 return to the locked pool only after GPU completion; cached idle buffers are
 bounded to 4 MiB, separately from in-flight GPU-owned buffers. Xcode compiles

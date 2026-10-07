@@ -150,14 +150,15 @@ been verified.
 No timer or permanent display link runs. Core Animation drives redisplay while
 mesh properties animate. Dirty views share a command buffer, and compatible
 drawable sizes share render passes with up to eight independent targets. Indexed
-triangles and reusable upload buffers keep the original mesh quality. Unchanged
+triangles and reusable upload buffers avoid duplicated work. Geometry density
+adapts to curvature and framebuffer size; cubic color is evaluated per pixel. Unchanged
 snapshots skip GPU submission. A static mesh
 keeps its last submitted image and does no recurring rendering work.
 
 ```swift
 gradientView.debugMode = .mesh          // Patch edges and vertex markers
 gradientView.debugMode = .controlPoints // Also show Bézier handles
-gradientView.debugMode = .tessellation  // Sampled parameter grid within each patch
+gradientView.debugMode = .tessellation  // Actual selected triangle grid
 gradientView.debugMode = .none
 
 gradientView.isRenderingSuspended = true
@@ -165,9 +166,26 @@ gradientView.isRenderingSuspended = true
 
 ![Actual mesh debugging renders](Documentation/Comparisons/debug-sheet.png)
 
-The tessellation debug mode shows an 8 × 8 inspection grid, not every emitted GPU
-triangle. `subdivisions` controls actual triangle density (default 48 segments
-per patch axis, clamped to 2...128).
+The tessellation debug mode shows every selected cell and its diagonal.
+Adaptive geometry is the default; fixed density remains available:
+
+```swift
+gradientView.subdivisions = 0           // Automatic (default)
+gradientView.maximumGeometryError = 0.5 // Target deviation in framebuffer pixels
+gradientView.subdivisions = 48          // Fixed geometry; still per-pixel colors
+```
+
+Positive subdivisions are clamped to 1...128. Automatic selection uses a uniform
+power-of-two grid so shared patch boundaries agree. Its second-derivative bound
+includes mixed curvature and targets 0.5 framebuffer pixels by default. The
+128-segment and 65,536-cell limits can override that target for extreme inputs.
+This is a geometry target, not a bound on color differences or SwiftUI parity.
+`maximumGeometryError` is clamped to 0.05...8 and ignored in fixed mode.
+
+Opaque device colors use packed half coefficients on supported CPU architectures;
+translucent, linear/perceptual, and values beyond half range retain float precision.
+Intel Catalyst uses the float specialization. All modes evaluate the full color
+surface per fragment. UIKit animation and on-demand rendering apply to both modes.
 
 The view suspends onscreen submissions when detached, explicitly hidden,
 explicitly suspended, or when the app resigns active. Resume invalidates the
@@ -208,6 +226,10 @@ compare the current renderer against the original library and SwiftUI on the sam
 The [geometry-resolution experiment](Documentation/Benchmarks/Geometry/README.md)
 measures subdivision cost and pixel convergence, and records runtime evidence
 of SwiftUI's curvature-based tessellation and fragment color evaluation.
+The [adaptive renderer measurements](Documentation/Benchmarks/Adaptive/README.md)
+cover the current implementation, image convergence, and physical-device results.
+With diagnostics enabled, `lastSubdivisionCount` reports the selected geometry
+density and `triangleCount` totals submitted gradient triangles (excluding overlays).
 
 For export and tests:
 

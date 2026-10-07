@@ -1,9 +1,11 @@
 #include <metal_stdlib>
 using namespace metal;
+constant bool uses_half_colors [[function_constant(0)]];
 
 struct MeshOutput {
 	float4 position [[position]];
-	float4 color;
+	float2 uv;
+	uint patch [[flat]];
 };
 
 float4 bernstein(float t) {
@@ -16,17 +18,17 @@ vertex MeshOutput mesh_vertex(uint vid [[vertex_id]], uint patch [[instance_id]]
 	uint row = subdivisions + 1;
 	float2 uv = float2(vid % row, vid / row) / float(subdivisions);
 	float4 bu = bernstein(uv.x), bv = bernstein(uv.y);
-	float4 p = 0, c = 0;
+	float4 p = 0;
 	for (uint y = 0; y < 4; ++y) {
 		for (uint x = 0; x < 4; ++x) {
 			float weight = bu[x] * bv[y];
-			p += data[patch * 32 + y * 4 + x] * weight;
-			c += data[patch * 32 + 16 + y * 4 + x] * weight;
+			p += data[patch * 16 + y * 4 + x] * weight;
 		}
 	}
 	MeshOutput out;
 	out.position = float4(p.x * 2 - 1, 1 - p.y * 2, 0, 1);
-	out.color = c;
+	out.uv = uv;
+	out.patch = patch;
 	return out;
 }
 
@@ -34,8 +36,32 @@ float3 encode_srgb(float3 c) {
 	return select(12.92 * c, 1.055 * pow(max(c, 0.0), float3(1.0 / 2.4)) - 0.055, c > 0.0031308);
 }
 
-inline float4 mesh_color(MeshOutput in, uint space) {
-	float4 c = in.color;
+inline float4 mesh_color(MeshOutput in, uint space, device const void *data) {
+	// Evaluate the complete cubic color surface at the interpolated patch UV.
+	// Geometry density affects position/UV approximation, never color sampling.
+	float4 c;
+	if (uses_half_colors) {
+		device const half4 *net = (device const half4 *)data + in.patch * 16;
+		half2 uv = half2(in.uv);
+		half3 a = fma(fma(fma(net[12].rgb, uv.y, net[8].rgb), uv.y, net[4].rgb), uv.y, net[0].rgb);
+		half3 b = fma(fma(fma(net[13].rgb, uv.y, net[9].rgb), uv.y, net[5].rgb), uv.y, net[1].rgb);
+		half3 d = fma(fma(fma(net[14].rgb, uv.y, net[10].rgb), uv.y, net[6].rgb), uv.y, net[2].rgb);
+		half3 e = fma(fma(fma(net[15].rgb, uv.y, net[11].rgb), uv.y, net[7].rgb), uv.y, net[3].rgb);
+		half s = 1 - uv.x;
+		// This specialized pipeline is only selected for opaque device colors.
+		// Alpha stays exactly one, and no alpha division/color conversion is needed.
+		half3 rgb = a * (s*s*s) + (b*s + d*uv.x) * (3*s*uv.x) + e * (uv.x*uv.x*uv.x);
+		return float4(clamp(float3(rgb), 0.0, 1.0), 1.0);
+	}
+	else {
+		device const float4 *net = (device const float4 *)data + in.patch * 16;
+		float4 a = fma(fma(fma(net[12], in.uv.y, net[8]), in.uv.y, net[4]), in.uv.y, net[0]);
+		float4 b = fma(fma(fma(net[13], in.uv.y, net[9]), in.uv.y, net[5]), in.uv.y, net[1]);
+		float4 d = fma(fma(fma(net[14], in.uv.y, net[10]), in.uv.y, net[6]), in.uv.y, net[2]);
+		float4 e = fma(fma(fma(net[15], in.uv.y, net[11]), in.uv.y, net[7]), in.uv.y, net[3]);
+		float s = 1 - in.uv.x;
+		c = a * (s*s*s) + (b*s + d*in.uv.x) * (3*s*in.uv.x) + e * (in.uv.x*in.uv.x*in.uv.x);
+	}
 	if (c.a <= 0.000001) { return float4(0); }
 	c.rgb /= c.a;
 	if (space == 1) {
@@ -53,18 +79,19 @@ inline float4 mesh_color(MeshOutput in, uint space) {
 	return float4(c.rgb * c.a, c.a);
 }
 
-fragment float4 mesh_fragment(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]]) { return mesh_color(in, space); }
+fragment float4 mesh_fragment(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]], device const void *data [[buffer(1)]]) { return mesh_color(in, space, data); }
 
 struct DebugVertex { float2 position; float2 padding; float4 color; };
+struct DebugOutput { float4 position [[position]]; float4 color; };
 
-vertex MeshOutput debug_vertex(uint vid [[vertex_id]], device const DebugVertex *vertices [[buffer(0)]]) {
-	MeshOutput out;
+vertex DebugOutput debug_vertex(uint vid [[vertex_id]], device const DebugVertex *vertices [[buffer(0)]]) {
+	DebugOutput out;
 	out.position = float4(vertices[vid].position.x * 2 - 1, 1 - vertices[vid].position.y * 2, 0, 1);
 	out.color = vertices[vid].color;
 	return out;
 }
 
-fragment float4 debug_fragment(MeshOutput in [[stage_in]]) {
+fragment float4 debug_fragment(DebugOutput in [[stage_in]]) {
 	return float4(in.color.rgb * in.color.a, in.color.a);
 }
 
@@ -72,8 +99,8 @@ fragment float4 debug_fragment(MeshOutput in [[stage_in]]) {
 // pass while retaining native framebuffer-only drawable storage.
 #define DEFINE_TARGET(N) \
 struct Target##N { float4 color [[color(N)]]; }; \
-fragment Target##N mesh_fragment_##N(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]]) { Target##N out; out.color = mesh_color(in, space); return out; } \
-fragment Target##N debug_fragment_##N(MeshOutput in [[stage_in]]) { Target##N out; out.color = float4(in.color.rgb * in.color.a, in.color.a); return out; }
+fragment Target##N mesh_fragment_##N(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]], device const void *data [[buffer(1)]]) { Target##N out; out.color = mesh_color(in, space, data); return out; } \
+fragment Target##N debug_fragment_##N(DebugOutput in [[stage_in]]) { Target##N out; out.color = float4(in.color.rgb * in.color.a, in.color.a); return out; }
 
 DEFINE_TARGET(1)
 DEFINE_TARGET(2)

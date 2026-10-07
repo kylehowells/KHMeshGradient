@@ -33,7 +33,7 @@ struct MeshBenchmarkConfiguration {
 			collectsMetalStatistics: !args.contains("--bench-no-metal-statistics"),
 			cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)),
 			randomSeed: UInt64(value("--bench-random-seed", "")),
-			subdivisions: min(128, max(2, Int(value("--bench-subdivisions", "48")) ?? 48)))
+			subdivisions: min(128, max(0, Int(value("--bench-subdivisions", "0")) ?? 0)))
 	}
 }
 
@@ -332,7 +332,9 @@ final class MeshBenchmarkViewController: UIViewController {
 				"screenHeightPoints": self.view.bounds.height, "os": UIDevice.current.systemVersion, "model": model,
 				"isSimulator": self.isSimulator, "build": self.buildConfiguration,
 				"metalStatisticsEnabled": self.configuration.collectsMetalStatistics, "subdivisions": self.configuration.subdivisions,
-				"geometryResolutionScope": self.configuration.renderer == "kh" ? "fixed-subdivisions-per-patch" : "SwiftUI-managed-not-configurable",
+				"geometryResolutionScope": self.configuration.renderer == "kh" ? (self.configuration.subdivisions == 0 ? "adaptive-geometry-in-framebuffer-pixels" : "fixed-subdivisions-per-patch") : "SwiftUI-managed-not-configurable",
+				"metalColorEvaluation": "per-fragment-mixed-basis; packed-half-opaque-device; float-other-modes",
+				"maximumGeometryErrorPixels": 0.5,
 				"metalGPUTimeAllocation": "equal-share-of-batch",
 				"metalMaximumDrawablesPerLayer": 3, "metalTriangleEncoding": "indexed",
 				"metalRenderPassBatching": "multiple-color-attachments",

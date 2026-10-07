@@ -1,17 +1,19 @@
 # Verification
 
-Verified on 6–7 October 2026 using Xcode 26.6.
+Verified on 6–8 October 2026 using Xcode 26.6. Current renderer checks include
+adaptive geometry and per-fragment color; historical measurements below retain
+their original implementation context.
 
 | Check | Result |
 | --- | --- |
 | Example app build/run, iPad Pro Simulator, iOS 26.5 | Passed |
-| XCTest suite, iOS 26.5 | 23 passed; no failures or skips |
-| XCTest suite, iPhone SE Simulator, iOS 18.2 | 23 passed; no failures or skips |
+| XCTest suite, iOS 26.5 | 31 passed; no failures or skips |
+| XCTest suite, iPhone SE Simulator, iOS 18.2 | 31 passed; no failures or skips |
 | Standalone Swift package, generic iOS device, Release, deployment target 15.0 | Passed |
-| Standalone Swift package, Mac Catalyst, deployment target 15.0 | Passed |
+| Standalone Swift package, Mac Catalyst arm64/x86_64, deployment target 15.0 | Passed |
 | Nine Metal/SwiftUI image comparisons and three debug pairs | Captured and inspected |
 | Release example, M1 iPad Pro, iPadOS 18.6 | Built, installed, and exercised |
-| Release XCTest suite, physical M1 iPad Pro, iPadOS 18.6 | 23 passed; no failures or skips |
+| Release XCTest suite, physical M1 iPad Pro, iPadOS 18.6 | 31 passed; no failures or skips |
 
 Runtime tests verify actual Metal pixels, premultiplied transparency, background
 fill, source switching, invalid-configuration recovery, patch continuity, all
@@ -66,3 +68,21 @@ debug blending, and mixed target sizes; batched readback pixels match independen
 renders exactly. Multiple animated views coalesce and scrub together, then submit
 no idle work. All 29 original export images were regenerated with zero changed
 before/after pixels. See [optimization evidence](Benchmarks/Optimized/README.md).
+
+The adaptive renderer now selects geometry from a framebuffer-pixel second-
+derivative bound and evaluates cubic color per fragment. New GPU tests verify
+analytic colors on a single-cell patch, all interpolation spaces/transparency,
+full-precision fallback for values beyond half range, mixed curvature, work
+limits, error-target samples, animated selection and policy changes while paused,
+and actual debug diagonals. Existing animation, MRT pixel-isolation, and idle
+tests pass unchanged. Catalyst uses raw half bits on arm64 and the float
+specialization on Intel, avoiding unsupported Swift Float16 SIMD.
+
+The ordinary nine-pair comparison/debug sheets were rebuilt with the new shader.
+SwiftUI references remain byte-identical. A separate physical-device matrix has
+360 actual renders and preserved input/image hashes. Repeated current CPU/memory
+trials cover two viewport sizes, with three pairs each; all are retained and valid.
+GPU diagnostics have three KH trials. Instruments retained one KH and two SwiftUI
+app-only profiles; further all-process exports failed on unrelated daemon
+timelines, so trace repeat variation for KH remains unknown. See the
+[current adaptive evidence](Benchmarks/Adaptive/README.md).

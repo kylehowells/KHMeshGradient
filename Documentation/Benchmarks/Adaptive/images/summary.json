@@ -1,0 +1,156 @@
+[
+  {
+    "width": 304,
+    "subdivisions": 0,
+    "mean_mae_vs_kh128": 0.034378000000000006,
+    "mean_mae_vs_swiftui": 1.5623080666666667,
+    "worst_fixture_mae_vs_kh128": 0.077122
+  },
+  {
+    "width": 304,
+    "subdivisions": 1,
+    "mean_mae_vs_kh128": 8.173852933333333,
+    "mean_mae_vs_swiftui": 8.0944596,
+    "worst_fixture_mae_vs_kh128": 51.091408
+  },
+  {
+    "width": 304,
+    "subdivisions": 4,
+    "mean_mae_vs_kh128": 0.6976891999999998,
+    "mean_mae_vs_swiftui": 1.7071466000000002,
+    "worst_fixture_mae_vs_kh128": 4.819621
+  },
+  {
+    "width": 304,
+    "subdivisions": 8,
+    "mean_mae_vs_kh128": 0.18880040000000003,
+    "mean_mae_vs_swiftui": 1.4841985333333332,
+    "worst_fixture_mae_vs_kh128": 1.21257
+  },
+  {
+    "width": 304,
+    "subdivisions": 12,
+    "mean_mae_vs_kh128": 0.09646273333333334,
+    "mean_mae_vs_swiftui": 1.5294560666666663,
+    "worst_fixture_mae_vs_kh128": 0.545941
+  },
+  {
+    "width": 304,
+    "subdivisions": 16,
+    "mean_mae_vs_kh128": 0.06213066666666667,
+    "mean_mae_vs_swiftui": 1.5437356666666666,
+    "worst_fixture_mae_vs_kh128": 0.316107
+  },
+  {
+    "width": 304,
+    "subdivisions": 24,
+    "mean_mae_vs_kh128": 0.03375266666666667,
+    "mean_mae_vs_swiftui": 1.5591886666666668,
+    "worst_fixture_mae_vs_kh128": 0.132794
+  },
+  {
+    "width": 304,
+    "subdivisions": 32,
+    "mean_mae_vs_kh128": 0.0209776,
+    "mean_mae_vs_swiftui": 1.5640647333333333,
+    "worst_fixture_mae_vs_kh128": 0.077122
+  },
+  {
+    "width": 304,
+    "subdivisions": 48,
+    "mean_mae_vs_kh128": 0.011476666666666666,
+    "mean_mae_vs_swiftui": 1.5676193333333335,
+    "worst_fixture_mae_vs_kh128": 0.04181
+  },
+  {
+    "width": 304,
+    "subdivisions": 96,
+    "mean_mae_vs_kh128": 0.0041924,
+    "mean_mae_vs_swiftui": 1.569316333333333,
+    "worst_fixture_mae_vs_kh128": 0.013114
+  },
+  {
+    "width": 304,
+    "subdivisions": 128,
+    "mean_mae_vs_kh128": 0.0,
+    "mean_mae_vs_swiftui": 1.5694846666666669,
+    "worst_fixture_mae_vs_kh128": 0.0
+  },
+  {
+    "width": 720,
+    "subdivisions": 0,
+    "mean_mae_vs_kh128": 0.015665000000000002,
+    "mean_mae_vs_swiftui": 1.4701723333333334,
+    "worst_fixture_mae_vs_kh128": 0.031373
+  },
+  {
+    "width": 720,
+    "subdivisions": 1,
+    "mean_mae_vs_kh128": 8.173540466666667,
+    "mean_mae_vs_swiftui": 8.148378000000001,
+    "worst_fixture_mae_vs_kh128": 51.089073
+  },
+  {
+    "width": 720,
+    "subdivisions": 4,
+    "mean_mae_vs_kh128": 0.6978243333333334,
+    "mean_mae_vs_swiftui": 1.7488673333333333,
+    "worst_fixture_mae_vs_kh128": 4.824553
+  },
+  {
+    "width": 720,
+    "subdivisions": 8,
+    "mean_mae_vs_kh128": 0.18959926666666665,
+    "mean_mae_vs_swiftui": 1.4813084,
+    "worst_fixture_mae_vs_kh128": 1.225831
+  },
+  {
+    "width": 720,
+    "subdivisions": 12,
+    "mean_mae_vs_kh128": 0.0968358,
+    "mean_mae_vs_swiftui": 1.4569790666666667,
+    "worst_fixture_mae_vs_kh128": 0.556364
+  },
+  {
+    "width": 720,
+    "subdivisions": 16,
+    "mean_mae_vs_kh128": 0.06283233333333334,
+    "mean_mae_vs_swiftui": 1.4492825333333335,
+    "worst_fixture_mae_vs_kh128": 0.322766
+  },
+  {
+    "width": 720,
+    "subdivisions": 24,
+    "mean_mae_vs_kh128": 0.034532,
+    "mean_mae_vs_swiftui": 1.4627006666666669,
+    "worst_fixture_mae_vs_kh128": 0.150845
+  },
+  {
+    "width": 720,
+    "subdivisions": 32,
+    "mean_mae_vs_kh128": 0.021977666666666666,
+    "mean_mae_vs_swiftui": 1.4664792,
+    "worst_fixture_mae_vs_kh128": 0.091215
+  },
+  {
+    "width": 720,
+    "subdivisions": 48,
+    "mean_mae_vs_kh128": 0.010795266666666668,
+    "mean_mae_vs_swiftui": 1.4697489333333336,
+    "worst_fixture_mae_vs_kh128": 0.045084
+  },
+  {
+    "width": 720,
+    "subdivisions": 96,
+    "mean_mae_vs_kh128": 0.0025533333333333337,
+    "mean_mae_vs_swiftui": 1.4717278000000003,
+    "worst_fixture_mae_vs_kh128": 0.008243
+  },
+  {
+    "width": 720,
+    "subdivisions": 128,
+    "mean_mae_vs_kh128": 0.0,
+    "mean_mae_vs_swiftui": 1.4720457333333334,
+    "worst_fixture_mae_vs_kh128": 0.0
+  }
+]

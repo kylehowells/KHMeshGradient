@@ -1,5 +1,8 @@
 # Batched renderer optimization
 
+These are preserved measurements before adaptive geometry/per-fragment color.
+See the [current adaptive renderer](../Adaptive/README.md) for subsequent changes.
+
 The current renderer reaches the requested 120 Hz workload while keeping the
 original mesh quality. For 60 unique gradients, whole-app CPU falls from
 20.58 ± 0.36 to 4.64 ± 0.05 ms/update, extra app footprint falls from

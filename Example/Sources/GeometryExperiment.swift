@@ -4,7 +4,7 @@ import UIKit
 
 /// Diagnostic fixtures and exports stay in the example, outside the library.
 enum GeometryExperiment {
-	static let subdivisions: [Int] = [4, 8, 12, 16, 24, 32, 48, 96, 128]
+	static let subdivisions: [Int] = [0, 1, 4, 8, 12, 16, 24, 32, 48, 96, 128]
 	static let sizes: [CGSize] = [CGSize(width: 304, height: 176), CGSize(width: 720, height: 480)]
 
 	static var samples: [MeshSample] {
@@ -82,7 +82,8 @@ enum GeometryExperiment {
 		let metadata: [String: Any] = ["device": UIDevice.current.model, "os": UIDevice.current.systemVersion,
 			"subdivisions": self.subdivisions, "captures": captures, "imageScale": 1,
 			"reference": "SwiftUI ImageRenderer; independent from onscreen GPU benchmarks",
-			"khReferenceSubdivisions": 128]
+			"khReferenceSubdivisions": 128, "colorEvaluation": "per-fragment-mixed-basis; packed-half-opaque-device; float-other-modes",
+			"adaptiveSubdivisionValue": 0, "maximumGeometryErrorPixels": 0.5]
 		try JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted, .sortedKeys]).write(to: directory.appendingPathComponent("manifest.json"), options: .atomic)
 		print("GEOMETRY_EXPORT_COMPLETE")
 	}

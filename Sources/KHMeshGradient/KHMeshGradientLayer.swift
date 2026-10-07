@@ -8,7 +8,8 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	var smoothsColors: Bool = true
 	var colorSpace: KHMeshGradientView.ColorSpace = .device
 	var debugMode: KHMeshGradientView.DebugMode = .none
-	var subdivisions: Int = 48
+	var subdivisions: Int = 0
+	var maximumGeometryError: Float = 0.5
 	var isValid: Bool = true
 	var isRenderingEnabled: Bool = false {
 		didSet {
@@ -36,7 +37,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		var colorSpace: KHMeshGradientView.ColorSpace
 	}
 	private var colorKey: ColorKey?
-	private var colorNets: [SIMD4<Float>] = []
+	private var colorNets: MeshGeometry.FragmentColors?
 	private var lastDrawableSize: CGSize = .zero
 	private var hasRendered: Bool = false
 	private(set) var isMeshDisplayPending: Bool = true
@@ -91,6 +92,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 			self.colorSpace = source.colorSpace
 			self.debugMode = source.debugMode
 			self.subdivisions = source.subdivisions
+			self.maximumGeometryError = source.maximumGeometryError
 			self.isValid = source.isValid
 			self.isRenderingEnabled = source.isRenderingEnabled
 			self.renderer = source.renderer
@@ -258,8 +260,8 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		let background: CGColor? = self.value(forKey: "mesh_background") as! CGColor?
 		let backgroundRGBA = background == model.modelBackground ? (model.modelSnapshot?.background ?? .zero) : (background.map(MeshGeometry.rgba) ?? .zero)
 		return MeshGeometry.Snapshot(size: self.meshSize, vertices: vertices, colors: colors,
-			background: backgroundRGBA, smoothsColors: self.smoothsColors,
-			colorSpace: self.colorSpace, debugMode: self.debugMode, subdivisions: self.subdivisions)
+			background: backgroundRGBA, smoothsColors: model.smoothsColors,
+			colorSpace: model.colorSpace, debugMode: model.debugMode, subdivisions: model.subdivisions, maximumGeometryError: model.maximumGeometryError)
 	}
 
 	override func setNeedsDisplay() {
@@ -283,11 +285,11 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		if let mesh = snapshot {
 			let key = ColorKey(size: mesh.size, colors: mesh.colors, smoothsColors: mesh.smoothsColors, colorSpace: mesh.colorSpace)
 			if target.colorKey != key {
-				target.colorNets = MeshGeometry.colorPatchData(mesh)
+				target.colorNets = MeshGeometry.fragmentColorCoefficients(mesh)
 				target.colorKey = key
 			}
 		}
-		else { target.colorNets = []; target.colorKey = nil }
+		else { target.colorNets = nil; target.colorKey = nil }
 		let snapshotEnd: Double = statistics != nil ? CACurrentMediaTime() : 0
 		guard let drawable: CAMetalDrawable = target.nextDrawable() else {
 			target.scheduleDrawableRetry()
