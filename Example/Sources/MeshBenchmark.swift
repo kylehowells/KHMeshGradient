@@ -16,6 +16,7 @@ struct MeshBenchmarkConfiguration {
 	var collectsMetalStatistics: Bool
 	var cellSize: CGSize
 	var randomSeed: UInt64?
+	var subdivisions: Int
 
 	static func fromArguments() -> Self? {
 		let args: [String] = ProcessInfo.processInfo.arguments
@@ -31,7 +32,8 @@ struct MeshBenchmarkConfiguration {
 			activeSeconds: max(2, Double(value("--bench-seconds", "8")) ?? 8), startDelay: max(0, Double(value("--bench-delay", "0")) ?? 0),
 			collectsMetalStatistics: !args.contains("--bench-no-metal-statistics"),
 			cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)),
-			randomSeed: UInt64(value("--bench-random-seed", "")))
+			randomSeed: UInt64(value("--bench-random-seed", "")),
+			subdivisions: min(128, max(2, Int(value("--bench-subdivisions", "48")) ?? 48)))
 	}
 }
 
@@ -174,6 +176,7 @@ final class MeshBenchmarkViewController: UIViewController {
 			for fixture in self.fixtures.samples {
 				let view: KHMeshGradientView = KHMeshGradientView()
 				fixture.apply(to: view)
+				view.subdivisions = self.configuration.subdivisions
 				self.gridContainer.addSubview(view)
 				self.metalViews.append(view)
 			}
@@ -328,7 +331,8 @@ final class MeshBenchmarkViewController: UIViewController {
 				"displayScale": self.view.window?.screen.scale ?? 1, "screenWidthPoints": self.view.bounds.width,
 				"screenHeightPoints": self.view.bounds.height, "os": UIDevice.current.systemVersion, "model": model,
 				"isSimulator": self.isSimulator, "build": self.buildConfiguration,
-				"metalStatisticsEnabled": self.configuration.collectsMetalStatistics, "subdivisions": 48,
+				"metalStatisticsEnabled": self.configuration.collectsMetalStatistics, "subdivisions": self.configuration.subdivisions,
+				"geometryResolutionScope": self.configuration.renderer == "kh" ? "fixed-subdivisions-per-patch" : "SwiftUI-managed-not-configurable",
 				"metalGPUTimeAllocation": "equal-share-of-batch",
 				"metalMaximumDrawablesPerLayer": 3, "metalTriangleEncoding": "indexed",
 				"metalRenderPassBatching": "multiple-color-attachments",

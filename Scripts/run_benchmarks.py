@@ -53,6 +53,8 @@ def summary(data):
 
 def run_case(args, renderer, count, mesh, repetition):
     suffix = '-uninstrumented' if args.no_metal_statistics else ''
+    if args.subdivisions != 48:
+        suffix += f'-n{args.subdivisions}'
     if args.random_seed is not None:
         suffix += f'-seed{args.random_seed}'
     run_id = f'{args.fps}hz-{args.width}x{args.height}-{mesh}-{count}-{renderer}-r{repetition}{suffix}'
@@ -65,6 +67,7 @@ def run_case(args, renderer, count, mesh, repetition):
         '--benchmark', renderer, '--bench-count', str(count), '--bench-mesh', mesh,
         '--bench-id', run_id, '--bench-fps', str(args.fps), '--bench-seconds', str(args.seconds),
         '--bench-width', str(args.width), '--bench-height', str(args.height),
+        '--bench-subdivisions', str(args.subdivisions),
     ]
     nonce = str(uuid.uuid4())
     launch_args.extend(['--bench-token', nonce])
@@ -120,11 +123,14 @@ def main():
     parser.add_argument('--width', type=int, default=320)
     parser.add_argument('--height', type=int, default=200)
     parser.add_argument('--seconds', type=float, default=8)
+    parser.add_argument('--subdivisions', type=int, default=48)
     parser.add_argument('--no-metal-statistics', action='store_true')
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--suite', choices=['primary120'])
     args = parser.parse_args()
+    if not 2 <= args.subdivisions <= 128:
+        parser.error('--subdivisions must be between 2 and 128')
     if args.random_seed is not None and not 0 <= args.random_seed < 2**64:
         parser.error('--random-seed must be an unsigned 64-bit integer')
     root = Path(__file__).resolve().parent.parent

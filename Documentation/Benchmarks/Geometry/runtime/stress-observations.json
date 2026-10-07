@@ -1,0 +1,1445 @@
+{
+  "frameworkUUID": "208CB2C6-A896-3BC7-9742-AB21E55B5B4C",
+  "observations": [
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.058694809675216675,
+        0.23215517401695251
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06732240319252014,
+        0.21205827593803406
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04936528205871582,
+        0.18213270604610443
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10582000017166138,
+        0.19843325018882751
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.12179586291313171,
+        0.3048892021179199
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06789864599704742,
+        0.20685243606567383
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08314298093318939,
+        0.19872573018074036
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10081486403942108,
+        0.23088788986206055
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06864836812019348,
+        0.2235298752784729
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06273514032363892,
+        0.1669175624847412
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.12920492887496948,
+        0.1548858880996704
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04228407144546509,
+        0.1736355870962143
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1002846360206604,
+        0.1953621357679367
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0941990315914154,
+        0.19145280122756958
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09621106088161469,
+        0.21814894676208496
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08210952579975128,
+        0.2930261194705963
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09594905376434326,
+        0.22870796918869019
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.05879843235015869,
+        0.24225950241088867
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07092081010341644,
+        0.18207019567489624
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.056839317083358765,
+        0.23026274144649506
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09377279877662659,
+        0.2761819362640381
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07834973931312561,
+        0.2975590229034424
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11570657789707184,
+        0.2383526861667633
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06218910217285156,
+        0.2179204225540161
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04248952865600586,
+        0.19162136316299438
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09581252932548523,
+        0.24953830242156982
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04513382911682129,
+        0.21755656599998474
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07802750170230865,
+        0.2522103190422058
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.054475337266922,
+        0.25311270356178284
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1558106541633606,
+        0.19745610654354095
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08947311341762543,
+        0.21411320567131042
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.061816439032554626,
+        0.2387484461069107
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1331779509782791,
+        0.2561376690864563
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07547527551651001,
+        0.23086082935333252
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.058474957942962646,
+        0.17477861046791077
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1391020119190216,
+        0.2185724377632141
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06409677863121033,
+        0.2083396315574646
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07458168268203735,
+        0.27671146392822266
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.13051079213619232,
+        0.1723070591688156
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.132974311709404,
+        0.22621868550777435
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.15401864051818848,
+        0.23269212245941162
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10469485819339752,
+        0.24589884281158447
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.12988682091236115,
+        0.2486853301525116
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.13991013169288635,
+        0.20159217715263367
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06502723693847656,
+        0.2131713628768921
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06578373908996582,
+        0.223690003156662
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0808463841676712,
+        0.18486815690994263
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08476665616035461,
+        0.2240913361310959
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11433309316635132,
+        0.2781369090080261
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06486091017723083,
+        0.2966309189796448
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.062298789620399475,
+        0.16699540615081787
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06809824705123901,
+        0.18947021663188934
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04896482825279236,
+        0.14876848459243774
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08064350485801697,
+        0.3155849874019623
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09752063453197479,
+        0.2244267612695694
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.15221209824085236,
+        0.25269049406051636
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.12707185745239258,
+        0.2515191435813904
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07654264569282532,
+        0.2734120190143585
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08360391855239868,
+        0.256204754114151
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.047023117542266846,
+        0.19009816646575928
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0626269280910492,
+        0.224894180893898
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06184569001197815,
+        0.20749472081661224
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04582256078720093,
+        0.17078258097171783
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08618788421154022,
+        0.1988539695739746
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09784002602100372,
+        0.28867393732070923
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06443905830383301,
+        0.20563793182373047
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08662807941436768,
+        0.19675485789775848
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.105663001537323,
+        0.23769629001617432
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06439496576786041,
+        0.22519820928573608
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06875534355640411,
+        0.1696341633796692
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.14293712377548218,
+        0.1656801700592041
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.05999016761779785,
+        0.1860746145248413
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.13366001844406128,
+        0.2076992392539978
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11905311048030853,
+        0.20394808053970337
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11532828211784363,
+        0.22948062419891357
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09364648163318634,
+        0.29999735951423645
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10158714652061462,
+        0.22462156414985657
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0583033561706543,
+        0.2335616797208786
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06041352450847626,
+        0.17829865217208862
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0484616756439209,
+        0.21500062942504883
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0743626207113266,
+        0.2581822872161865
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11035275459289551,
+        0.2918207049369812
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09450346231460571,
+        0.22724272310733795
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0647578239440918,
+        0.22317922115325928
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.043889760971069336,
+        0.19546286761760712
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.098833829164505,
+        0.2519383430480957
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04604619741439819,
+        0.22055578231811523
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.0936155766248703,
+        0.26550358533859253
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07411620020866394,
+        0.2644799053668976
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.18493859469890594,
+        0.21834175288677216
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.113446906208992,
+        0.22430939972400665
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07854744791984558,
+        0.248612180352211
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.14699430763721466,
+        0.2597526013851166
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07266438007354736,
+        0.23252803087234497
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.05485546588897705,
+        0.17316970229148865
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1281578093767166,
+        0.2162637710571289
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.05578461289405823,
+        0.19106048345565796
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07699382305145264,
+        0.2644507586956024
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10598351061344147,
+        0.16564631462097168
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.11044155061244965,
+        0.2140769362449646
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.13638365268707275,
+        0.23521053791046143
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.09344778954982758,
+        0.25221386551856995
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.12987875938415527,
+        0.2520400583744049
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.16520899534225464,
+        0.2147897481918335
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07906658947467804,
+        0.22635161876678467
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07270720601081848,
+        0.23577359318733215
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10161708295345306,
+        0.19216573238372803
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10612811148166656,
+        0.2389237880706787
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1334075629711151,
+        0.292203426361084
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07915833592414856,
+        0.30213677883148193
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06854619085788727,
+        0.16320383548736572
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.061813950538635254,
+        0.18516799807548523
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.045180439949035645,
+        0.1426801085472107
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06813058257102966,
+        0.2992575168609619
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.07810428738594055,
+        0.20683275163173676
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1255594938993454,
+        0.2364266961812973
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.10499967634677887,
+        0.2500612735748291
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.06194344162940979,
+        0.26629459857940674
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08688068389892578,
+        0.2619171738624573
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "60 randomized organic meshes; seed42; 152x88pt; iOS26.5 Simulator",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.04922163486480713,
+        0.18964827060699463
+      ],
+      "transformScale": 240.0
+    }
+  ]
+}

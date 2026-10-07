@@ -1,6 +1,8 @@
 # Physical-device performance comparison
 
 These are preserved measurements of the earlier renderer. See the [current optimization results](Optimized/README.md) for the batched implementation.
+The [geometry-density experiment](Geometry/README.md) adds a repeated subdivision
+sweep, pixel comparisons, and direct inspection of SwiftUI's rendering strategy.
 
 SwiftUI uses less whole-app CPU time in every measured workload. KH has a memory
 advantage at 15 larger surfaces, but loses that advantage in the high-count small

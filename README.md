@@ -205,6 +205,9 @@ See the [physical-device benchmark report](Documentation/Benchmarks/README.md)
 for the preserved original sweep. The [optimization measurements](Documentation/Benchmarks/Optimized/README.md)
 compare the current renderer against the original library and SwiftUI on the same
 60 unique gradients, with fresh Release trials and unchanged quality.
+The [geometry-resolution experiment](Documentation/Benchmarks/Geometry/README.md)
+measures subdivision cost and pixel convergence, and records runtime evidence
+of SwiftUI's curvature-based tessellation and fragment color evaluation.
 
 For export and tests:
 

@@ -37,6 +37,7 @@ def extract(time_path, gpu_path, run_path):
     root, resolve = document(gpu_path)
     buffers = collections.defaultdict(list)
     active_intervals = []
+    channel_intervals = collections.defaultdict(list)
     for row in root.findall('.//row'):
         fields = [resolve(e) for e in row]
         if not fields[10].attrib.get('fmt', '').startswith('KHMeshGradientExample '):
@@ -49,6 +50,7 @@ def extract(time_path, gpu_path, run_path):
         if start < lo or start + duration > hi:
             continue
         active_intervals.append((start, start + duration))
+        channel_intervals[fields[2].text].append((start, start + duration))
         buffers[fields[15].text].append((fields[2].text, start, start + duration))
     complete = [rows for rows in buffers.values() if {'Vertex', 'Fragment'}.issubset({r[0] for r in rows})]
     durations = sorted((max(r[2] for r in rows) - min(r[1] for r in rows)) * 1000 for rows in complete)
@@ -58,6 +60,13 @@ def extract(time_path, gpu_path, run_path):
     for start, end in sorted(active_intervals):
         union_seconds += max(0, end - max(start, previous_end))
         previous_end = max(previous_end, end)
+    channel_unions = {}
+    for channel, intervals in channel_intervals.items():
+        total, previous_end = 0, -1
+        for start, end in sorted(intervals):
+            total += max(0, end - max(start, previous_end))
+            previous_end = max(previous_end, end)
+        channel_unions[channel] = total * 1000 / active['updateCount']
     return {
         'runID': run['runID'], 'renderer': run['renderer'], 'count': run['count'], 'mesh': run['mesh'],
         'width': run['viewWidthPoints'], 'height': run['viewHeightPoints'], 'requestedFPS': run['requestedFPS'],
@@ -69,6 +78,7 @@ def extract(time_path, gpu_path, run_path):
         'observedCommandBuffersPerUpdate': len(buffers) / active['updateCount'],
         'idleBeforeObservedAppCommandBuffers': len(idle_buffers),
         'observedGPUActiveUnionMSPerUpdate': union_seconds * 1000 / active['updateCount'],
+        'observedGPUStageActiveUnionMSPerUpdate': channel_unions,
         'observedGPUActiveFraction': union_seconds / (hi - lo),
         'observedGPUChannels': sorted({r[0] for rows in buffers.values() for r in rows}),
         'gpuEnvelopeMeanMS': statistics.mean(durations), 'gpuEnvelopeMedianMS': statistics.median(durations),
@@ -76,6 +86,8 @@ def extract(time_path, gpu_path, run_path):
         'gpuEnvelopeMaxMS': max(durations),
         'model': run['model'], 'os': run['os'], 'isSimulator': run['isSimulator'], 'build': run['build'],
         'subdivisions': run['subdivisions'],
+        'geometryResolutionScope': run.get('geometryResolutionScope', 'KH-setting-only; SwiftUI-managed'),
+        'measuredExecutableSHA256': run.get('measuredExecutableSHA256'),
         'thermalMax': max(s['thermalState'] for p in run['phases'] for s in p['memorySamples']),
         'lowPowerMode': any(s['lowPowerMode'] for p in run['phases'] for s in p['memorySamples']),
         'interruptions': run['interruptions'], 'allMeshesVisible': run['allMeshesVisible'],

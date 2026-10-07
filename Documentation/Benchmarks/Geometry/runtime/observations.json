@@ -1,0 +1,125 @@
+{
+  "frameworkUUID": "208CB2C6-A896-3BC7-9742-AB21E55B5B4C",
+  "observations": [
+    {
+      "case": "GEOMETRY_PROBE_CASE 0 corners 152x88 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 0,
+      "subdivisions": 1,
+      "patchCount": 1,
+      "maxSecondDifferenceXY": [
+        0.000244140625,
+        0.000244140625
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 1 corners 360x240 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 0,
+      "subdivisions": 1,
+      "patchCount": 1,
+      "maxSecondDifferenceXY": [
+        0.000244140625,
+        0.000244140625
+      ],
+      "transformScale": 600.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 2 organic 152x88 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08320008218288422,
+        0.2096511870622635
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 3 organic 360x240 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.08320008218288422,
+        0.2096511870622635
+      ],
+      "transformScale": 600.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 4 organic-explicit 152x88 scale=2.0",
+      "meshTypeFlags": 18,
+      "depth": 2,
+      "subdivisions": 4,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1334228515625,
+        0.15001225471496582
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 5 organic-explicit 360x240 scale=2.0",
+      "meshTypeFlags": 18,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 9,
+      "maxSecondDifferenceXY": [
+        0.1334228515625,
+        0.15001225471496582
+      ],
+      "transformScale": 600.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 6 strong-handles 152x88 scale=2.0",
+      "meshTypeFlags": 18,
+      "depth": 3,
+      "subdivisions": 8,
+      "patchCount": 1,
+      "maxSecondDifferenceXY": [
+        0.7998046875,
+        0.25
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 7 strong-handles 360x240 scale=2.0",
+      "meshTypeFlags": 18,
+      "depth": 4,
+      "subdivisions": 16,
+      "patchCount": 1,
+      "maxSecondDifferenceXY": [
+        0.7998046875,
+        0.25
+      ],
+      "transformScale": 600.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 8 linear-colors 152x88 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 0,
+      "subdivisions": 1,
+      "patchCount": 4,
+      "maxSecondDifferenceXY": [
+        0.0001220703125,
+        0.0001220703125
+      ],
+      "transformScale": 240.0
+    },
+    {
+      "case": "GEOMETRY_PROBE_CASE 9 linear-colors 360x240 scale=2.0",
+      "meshTypeFlags": 17,
+      "depth": 0,
+      "subdivisions": 1,
+      "patchCount": 4,
+      "maxSecondDifferenceXY": [
+        0.0001220703125,
+        0.0001220703125
+      ],
+      "transformScale": 600.0
+    }
+  ]
+}

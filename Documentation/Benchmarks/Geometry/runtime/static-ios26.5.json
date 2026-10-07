@@ -1,0 +1,10 @@
+{
+  "binarySHA256": "893eabef3314cc4799f27370daaab77be9678d650a26a2d62c9f1bd79337c0e4",
+  "uuid": "208CB2C6-A896-3BC7-9742-AB21E55B5B4C",
+  "symbols": [
+    "0000000000129334 t RB::Fill::MeshGradient::PatchBuffer::commit_patch(RB::Shader::MeshGradient::Patch&)",
+    "0000000000129104 t RB::Fill::MeshGradient::PatchBuffer::PatchBuffer(unsigned int, unsigned int, RB::Bounds, RB::AffineTransform const&, unsigned int)",
+    "00000000001297d0 t RB::Fill::MeshGradient::make_buffers(RB::vector<RB::Fill::MeshGradient::MeshBuffer, 4ul, unsigned int>&, RB::Shader::MeshGradientGlobals&, float, RB::RenderPass&, RB::AffineTransform const&, RB::Bounds const&) const"
+  ],
+  "shaderModules": []
+}

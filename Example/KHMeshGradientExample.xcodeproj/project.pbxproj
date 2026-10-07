@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		21BD33635ABC9BA846E81893 /* GeometryExperiment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E136DBDB95A8AC81A5B1A987 /* GeometryExperiment.swift */; };
 		47FABFBA2668AA5BE0939850 /* SwiftUIMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */; };
 		48F980D813BD04611FE63229 /* BenchmarkFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAF24E97F4007511DE614EB /* BenchmarkFixtures.swift */; };
 		5456EA4F67686898B7AF1AC4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */; };
@@ -38,6 +39,7 @@
 		A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIMesh.swift; sourceTree = "<group>"; };
 		D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonExporter.swift; sourceTree = "<group>"; };
+		E136DBDB95A8AC81A5B1A987 /* GeometryExperiment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryExperiment.swift; sourceTree = "<group>"; };
 		E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshSamples.swift; sourceTree = "<group>"; };
 		E34E6CCF098C1E5CF987618E /* KHMeshGradientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = KHMeshGradientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E489C1A050BE380822112BE2 /* GalleryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 				3BAF24E97F4007511DE614EB /* BenchmarkFixtures.swift */,
 				D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */,
 				E489C1A050BE380822112BE2 /* GalleryViewController.swift */,
+				E136DBDB95A8AC81A5B1A987 /* GeometryExperiment.swift */,
 				10206B753C57D78F340CCE22 /* MeshBenchmark.swift */,
 				E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */,
 				AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */,
@@ -212,6 +215,7 @@
 				48F980D813BD04611FE63229 /* BenchmarkFixtures.swift in Sources */,
 				BDDB385DC272EDFF948F7151 /* ComparisonExporter.swift in Sources */,
 				71D743F8C62A9BBC04190B79 /* GalleryViewController.swift in Sources */,
+				21BD33635ABC9BA846E81893 /* GeometryExperiment.swift in Sources */,
 				658B0E2FD2E7AB7831A9AFB8 /* MeshBenchmark.swift in Sources */,
 				63B44E1D9D6C99D12BBA6C29 /* MeshSamples.swift in Sources */,
 				47FABFBA2668AA5BE0939850 /* SwiftUIMesh.swift in Sources */,

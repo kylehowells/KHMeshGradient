@@ -1,0 +1,28 @@
+{
+  "binarySHA256": "845a5e5ea68490e78824271e24f033fdd1ccb2251fe96e707849ddd392a3e539",
+  "uuid": "6FCAE03C-D7A2-317A-9988-2A2E689778EB",
+  "symbols": [
+    "00000000000f8908 t RB::Fill::MeshGradient::PatchBuffer::commit_patch(RB::Shader::MeshGradient::Patch&)",
+    "00000000000f86d8 t RB::Fill::MeshGradient::PatchBuffer::PatchBuffer(unsigned int, unsigned int, RB::Bounds, RB::AffineTransform const&, unsigned int)",
+    "00000000000f8da4 t RB::Fill::MeshGradient::make_buffers(RB::vector<RB::Fill::MeshGradient::MeshBuffer, 4ul, unsigned int>&, RB::Shader::MeshGradientGlobals&, float, RB::RenderPass&, RB::AffineTransform const&, RB::Bounds const&) const"
+  ],
+  "shaderModules": [
+    {
+      "bitcodeSHA256": "9cab7c5774dfb90ac5e83d4cb617030b7f167f0bf6543af6d703530586230381",
+      "entryPoints": [
+        "accumulator_mesh_gradient_vertex"
+      ],
+      "hasFragmentColorSampling": false,
+      "hasHalfVectorArithmetic": true
+    },
+    {
+      "bitcodeSHA256": "4b90bb629311aa02f642198bb5c57a0bbd801c456a3805f13bed6bafa1534975",
+      "entryPoints": [
+        "accumulator_mesh_gradient_fragment"
+      ],
+      "hasFragmentColorSampling": true,
+      "hasHalfVectorArithmetic": true
+    }
+  ],
+  "librarySHA256": "e60561e13a5e4eab53cda555a27ec238935a0eb653bdaa4903befdeea238beb6"
+}
