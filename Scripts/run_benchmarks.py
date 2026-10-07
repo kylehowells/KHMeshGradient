@@ -52,6 +52,8 @@ def summary(data):
 
 def run_case(args, renderer, count, mesh, repetition):
     suffix = '-uninstrumented' if args.no_metal_statistics else ''
+    if args.random_seed is not None:
+        suffix += f'-seed{args.random_seed}'
     run_id = f'{args.fps}hz-{args.width}x{args.height}-{mesh}-{count}-{renderer}-r{repetition}{suffix}'
     destination = args.output / f'{run_id}.json'
     if destination.exists() and not args.overwrite:
@@ -67,6 +69,8 @@ def run_case(args, renderer, count, mesh, repetition):
     launch_args.extend(['--bench-token', nonce])
     if args.no_metal_statistics:
         launch_args.append('--bench-no-metal-statistics')
+    if args.random_seed is not None:
+        launch_args.extend(['--bench-random-seed', str(args.random_seed)])
     with tempfile.TemporaryDirectory(prefix='khmesh-launch-') as temporary:
         result_path = Path(temporary) / 'launch.json'
         launched = command(['device', 'process', 'launch', '--device', args.device,
@@ -92,6 +96,8 @@ def run_case(args, renderer, count, mesh, repetition):
             destination.write_text(json.dumps(data, indent=2) + '\n')
             if data['count'] != count or data['renderer'] != renderer or data['mesh'] != mesh:
                 raise RuntimeError(f'Benchmark configuration differs from request: {run_id}')
+            if args.random_seed is not None and (data.get('randomSeed') != str(args.random_seed) or data.get('uniqueFixtureCount') != count):
+                raise RuntimeError(f'Randomized fixture validation failed: {run_id}')
             if not data['allMeshesVisible'] or data['interruptions']:
                 raise RuntimeError(f'Invalid run {run_id}: visibility={data["allMeshesVisible"]}, interruptions={data["interruptions"]}')
             print(f'DONE {run_id} {json.dumps(summary(data))}', flush=True)
@@ -114,9 +120,12 @@ def main():
     parser.add_argument('--height', type=int, default=200)
     parser.add_argument('--seconds', type=float, default=8)
     parser.add_argument('--no-metal-statistics', action='store_true')
+    parser.add_argument('--random-seed', type=int)
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--suite', choices=['primary120'])
     args = parser.parse_args()
+    if args.random_seed is not None and not 0 <= args.random_seed < 2**64:
+        parser.error('--random-seed must be an unsigned 64-bit integer')
     root = Path(__file__).resolve().parent.parent
     executable = root / 'DerivedData/BenchmarkDevice/Build/Products/Release-iphoneos/KHMeshGradientExample.app/KHMeshGradientExample'
     args.executable_sha256 = hashlib.sha256(executable.read_bytes()).hexdigest()

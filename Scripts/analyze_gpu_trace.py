@@ -79,6 +79,9 @@ def extract(time_path, gpu_path, run_path):
         'thermalMax': max(s['thermalState'] for p in run['phases'] for s in p['memorySamples']),
         'lowPowerMode': any(s['lowPowerMode'] for p in run['phases'] for s in p['memorySamples']),
         'interruptions': run['interruptions'], 'allMeshesVisible': run['allMeshesVisible'],
+        'gradientVariant': run.get('gradientVariant', 'shared-fixture'),
+        'randomSeed': run.get('randomSeed', 'none'), 'uniqueFixtureCount': run.get('uniqueFixtureCount'),
+        'fixtureSHA256': run.get('fixtureSHA256'),
     }
 
 

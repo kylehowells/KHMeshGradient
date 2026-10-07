@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		47FABFBA2668AA5BE0939850 /* SwiftUIMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0AE47206C5E55E29BB9B9A /* SwiftUIMesh.swift */; };
+		48F980D813BD04611FE63229 /* BenchmarkFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BAF24E97F4007511DE614EB /* BenchmarkFixtures.swift */; };
 		5456EA4F67686898B7AF1AC4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */; };
 		63B44E1D9D6C99D12BBA6C29 /* MeshSamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18DA0F3805E61D8E1D6FFDF /* MeshSamples.swift */; };
 		658B0E2FD2E7AB7831A9AFB8 /* MeshBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10206B753C57D78F340CCE22 /* MeshBenchmark.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		10206B753C57D78F340CCE22 /* MeshBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshBenchmark.swift; sourceTree = "<group>"; };
 		2E8607EE882B2266B891F9A3 /* KHMeshGradientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KHMeshGradientTests.swift; sourceTree = "<group>"; };
+		3BAF24E97F4007511DE614EB /* BenchmarkFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkFixtures.swift; sourceTree = "<group>"; };
 		8A29E4660802366436987DDD /* KHMeshGradient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = KHMeshGradient; path = ..; sourceTree = SOURCE_ROOT; };
 		8D0B267D30601F57EB68889E /* KHMeshGradientExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KHMeshGradientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				A16EC5C9A39D4E1FD8A4C24F /* AppDelegate.swift */,
+				3BAF24E97F4007511DE614EB /* BenchmarkFixtures.swift */,
 				D6DDD78835D2BE8FA11CA71A /* ComparisonExporter.swift */,
 				E489C1A050BE380822112BE2 /* GalleryViewController.swift */,
 				10206B753C57D78F340CCE22 /* MeshBenchmark.swift */,
@@ -206,6 +209,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5456EA4F67686898B7AF1AC4 /* AppDelegate.swift in Sources */,
+				48F980D813BD04611FE63229 /* BenchmarkFixtures.swift in Sources */,
 				BDDB385DC272EDFF948F7151 /* ComparisonExporter.swift in Sources */,
 				71D743F8C62A9BBC04190B79 /* GalleryViewController.swift in Sources */,
 				658B0E2FD2E7AB7831A9AFB8 /* MeshBenchmark.swift in Sources */,

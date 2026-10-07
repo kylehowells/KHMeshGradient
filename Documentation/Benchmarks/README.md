@@ -32,6 +32,12 @@ incremental memory, callback p95, direct KH rendering stages, and controls with
 diagnostics disabled. [Raw trials](raw), [CSV](runs.csv), and [machine-readable
 summary](summary.json) preserve the measurements rather than just rounded claims.
 
+A [randomized 60-view follow-up](Randomized/README.md) repeats the stress case with
+a unique palette and initial interior geometry for every view, plus original-input
+controls in the same new build. Randomizing the inputs leaves the measured CPU,
+memory, and update-rate advantage essentially unchanged. The earlier sweep and
+its executable fingerprints remain preserved here.
+
 ## Workloads and device
 
 Measured 7 October 2026 on a physical M1 iPad Pro 12.9-inch (5th generation),

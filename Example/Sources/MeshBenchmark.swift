@@ -15,6 +15,7 @@ struct MeshBenchmarkConfiguration {
 	var startDelay: Double
 	var collectsMetalStatistics: Bool
 	var cellSize: CGSize
+	var randomSeed: UInt64?
 
 	static func fromArguments() -> Self? {
 		let args: [String] = ProcessInfo.processInfo.arguments
@@ -29,7 +30,8 @@ struct MeshBenchmarkConfiguration {
 			sampleID: value("--bench-mesh", "rainbow"), runID: safeName, launchNonce: value("--bench-token", UUID().uuidString), requestedFPS: min(120, max(1, Int(value("--bench-fps", "60")) ?? 60)),
 			activeSeconds: max(2, Double(value("--bench-seconds", "8")) ?? 8), startDelay: max(0, Double(value("--bench-delay", "0")) ?? 0),
 			collectsMetalStatistics: !args.contains("--bench-no-metal-statistics"),
-			cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)))
+			cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)),
+			randomSeed: UInt64(value("--bench-random-seed", "")))
 	}
 }
 
@@ -83,6 +85,7 @@ private struct BenchmarkPhaseReport: Codable {
 final class MeshBenchmarkViewController: UIViewController {
 	private let configuration: MeshBenchmarkConfiguration
 	private let sample: MeshSample
+	private let fixtures: BenchmarkFixtures
 	private let titleLabel: UILabel = UILabel()
 	private let gridContainer: UIView = UIView()
 	private var metalViews: [KHMeshGradientView] = []
@@ -114,6 +117,7 @@ final class MeshBenchmarkViewController: UIViewController {
 	init(configuration: MeshBenchmarkConfiguration) {
 		self.configuration = configuration
 		self.sample = MeshSample.all.first(where: { $0.id == configuration.sampleID }) ?? MeshSample.all[1]
+		self.fixtures = BenchmarkFixtures(sample: self.sample, count: configuration.count, randomSeed: configuration.randomSeed)
 		super.init(nibName: nil, bundle: nil)
 	}
 	@available(*, unavailable)
@@ -167,15 +171,15 @@ final class MeshBenchmarkViewController: UIViewController {
 	private func constructViews() {
 		let start: Double = CACurrentMediaTime()
 		if self.configuration.renderer == "kh" {
-			for _ in 0..<self.configuration.count {
+			for fixture in self.fixtures.samples {
 				let view: KHMeshGradientView = KHMeshGradientView()
-				self.sample.apply(to: view)
+				fixture.apply(to: view)
 				self.gridContainer.addSubview(view)
 				self.metalViews.append(view)
 			}
 		}
 		else if self.configuration.renderer == "swiftui", #available(iOS 18.0, *) {
-			self.swiftUIStates = (0..<self.configuration.count).map({ _ in BenchmarkSwiftUIState(sample: self.sample) })
+			self.swiftUIStates = self.fixtures.samples.map({ BenchmarkSwiftUIState(sample: $0) })
 			let columns: Int = max(1, Int((self.gridContainer.bounds.width + 12) / (self.configuration.cellSize.width + 12)))
 			let host = UIHostingController(rootView: BenchmarkSwiftUIGrid(states: self.swiftUIStates, columns: columns, cellSize: self.configuration.cellSize))
 			host.view.backgroundColor = .clear
@@ -284,7 +288,7 @@ final class MeshBenchmarkViewController: UIViewController {
 	}
 
 	private func updatedPoints(time: Double, index: Int) -> [CGPoint] {
-		var points: [CGPoint] = self.sample.points
+		var points: [CGPoint] = self.fixtures.samples[index].points
 		let offset: Double = Double(index) * 0.37
 		for y in 1..<(self.sample.size.height - 1) {
 			for x in 1..<(self.sample.size.width - 1) {
@@ -328,6 +332,11 @@ final class MeshBenchmarkViewController: UIViewController {
 				"constructionWallSeconds": self.buildWallSeconds, "allMeshesVisible": self.layoutIsValid,
 				"interruptions": self.interruptions, "swiftUIHostingControllers": self.hostingController == nil ? 0 : 1,
 				"phases": phaseObject,
+				"gradientVariant": self.configuration.randomSeed == nil ? "shared-fixture" : "randomized-per-view",
+				"randomSeed": self.configuration.randomSeed.map({ String($0) }) ?? "none",
+				"uniqueFixtureCount": Set(self.fixtures.fingerprints).count,
+				"fixtureSHA256": self.fixtures.fingerprint, "perViewFixtureSHA256": self.fixtures.fingerprints,
+				"fixtureInputs": self.fixtures.inputs,
 			]
 			let directory: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("Benchmarks", isDirectory: true)
 			try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

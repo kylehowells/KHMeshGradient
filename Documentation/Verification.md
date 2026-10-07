@@ -40,3 +40,12 @@ and have no active-app interruptions. GPU profiles are separate runs.
 Pre-iOS-18 runtime testing and interactive
 UIViewPropertyAnimator support remain outside the verified capability set.
 This version explicitly documents UIViewPropertyAnimator as unsupported.
+
+The randomized benchmark extension builds in Release for the physical iPad and
+in Debug for Simulator. Its 12 fresh-process trials validate exact matching
+per-view inputs between renderers, 60 unique randomized fixtures per scene,
+consistent viewport/build hashes, nominal thermal state, and no interruptions.
+The library renderer source is unchanged. The first simulator suite run observed
+one delayed final submission in the idle-animation test; the focused rerun and
+then the full 15-test suite passed unchanged. Physical idle-after phases continue
+to report zero submissions.
