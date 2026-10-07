@@ -4,6 +4,167 @@ import XCTest
 @testable import KHMeshGradient
 
 final class KHMeshGradientTests: XCTestCase {
+	@MainActor func testPropertyAnimatorScrubsPausesResumesAndFinishes() throws {
+		let view: KHMeshGradientView = try self.makeView()
+		let window: UIWindow = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.15)
+		let animator: UIViewPropertyAnimator = UIViewPropertyAnimator(duration: 0.6, curve: .linear, animations: {
+			view.points[0] = CGPoint(x: 0.8, y: 0.6)
+			view.points[1] = CGPoint(x: 0.7, y: 0.1)
+			view.colors[0] = .blue
+		})
+		animator.startAnimation()
+		self.pump(0.1)
+		animator.pauseAnimation()
+		animator.fractionComplete = 0.25
+		self.pump(0.1)
+		XCTAssertEqual(view.presentationPoints[0].x, 0.2, accuracy: 0.01)
+		XCTAssertEqual(view.presentationPoints[1].x, 0.925, accuracy: 0.01)
+		let count: UInt64 = view.renderedFrameCount
+		self.pump(0.8)
+		XCTAssertEqual(view.renderedFrameCount, count, "Paused mesh must not submit frames.")
+		animator.fractionComplete = 0.75
+		self.pump(0.1)
+		XCTAssertEqual(view.presentationPoints[0].x, 0.6, accuracy: 0.01)
+		XCTAssertGreaterThan(view.renderedFrameCount, count, "Scrubbing must redraw Metal.")
+		let beforeResume: UInt64 = view.renderedFrameCount
+		let completion = self.expectation(description: "Animator finishes")
+		animator.addCompletion({ position in
+			XCTAssertEqual(position, .end)
+			completion.fulfill()
+		})
+		animator.continueAnimation(withTimingParameters: nil, durationFactor: 1)
+		self.wait(for: [completion], timeout: 3)
+		XCTAssertGreaterThan(view.renderedFrameCount, beforeResume, "Resume after the original duration must still redraw.")
+		XCTAssertEqual(view.presentationPoints[0].x, 0.8, accuracy: 0.01)
+		self.pump(0.1)
+		let settled: UInt64 = view.renderedFrameCount
+		self.pump(0.2)
+		XCTAssertEqual(view.renderedFrameCount, settled)
+	}
+	@MainActor func testPropertyAnimatorFinishStartRestoresModelAndMetalPixels() throws {
+		let view = try self.makeView()
+		view.colors = Array(repeating: .red, count: 4)
+		let window = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.1)
+		let animator = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: {
+			view.colors = Array(repeating: .blue, count: 4)
+			view.points[0] = CGPoint(x: 0.2, y: 0.2)
+			view.alpha = 0.5
+		})
+		animator.startAnimation()
+		animator.pauseAnimation()
+		animator.fractionComplete = 0.25
+		self.pump(0.1)
+		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16), usesPresentationValues: true), x: 8, y: 8)
+		XCTAssertEqual(Int(pixel[0]), 191, accuracy: 3)
+		XCTAssertEqual(Int(pixel[2]), 64, accuracy: 3)
+		animator.stopAnimation(false)
+		animator.finishAnimation(at: .start)
+		self.pump(0.1)
+		XCTAssertEqual(view.points[0], .zero)
+		XCTAssertEqual(view.alpha, 1)
+		XCTAssertEqual(view.colors[0].cgColor, UIColor.red.cgColor)
+		let restored = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
+		XCTAssertGreaterThan(restored[0], 250)
+		XCTAssertLessThan(restored[2], 5)
+		// A subsequent unrelated setter must not put the cancelled target back.
+		view.debugMode = .mesh
+		XCTAssertEqual(view.resolvedBezierPoints[0].position, .zero)
+	}
+
+	@MainActor func testOverlappingPropertyAnimatorsAndLegacyAnimationRedraw() throws {
+		let view = try self.makeView()
+		let window = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.1)
+		let long = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: { view.points[0].x = 0.5 })
+		let short = UIViewPropertyAnimator(duration: 0.2, curve: .linear, animations: { view.colors[3] = .black })
+		long.startAnimation()
+		short.startAnimation()
+		self.pump(0.4)
+		let count = view.renderedFrameCount
+		self.pump(0.2)
+		XCTAssertGreaterThan(view.renderedFrameCount, count, "Short animator must not stop the longer redraw driver.")
+		long.pauseAnimation()
+		long.fractionComplete = 0.7
+		self.pump(0.1)
+		long.isReversed = true
+		let completion = self.expectation(description: "Reverse completes")
+		long.addCompletion({ position in XCTAssertEqual(position, .start); completion.fulfill() })
+		long.continueAnimation(withTimingParameters: UICubicTimingParameters(animationCurve: .easeInOut), durationFactor: 0.2)
+		self.wait(for: [completion], timeout: 3)
+		XCTAssertEqual(view.points[0].x, 0, accuracy: 0.01)
+		self.pump(0.1)
+		let legacyStart = view.renderedFrameCount
+		UIView.animate(withDuration: 0.3, animations: { view.points[0].x = 0.4 })
+		self.pump(0.15)
+		XCTAssertGreaterThan(view.renderedFrameCount, legacyStart + 1)
+		XCTAssertGreaterThan(view.presentationPoints[0].x, 0)
+		XCTAssertLessThan(view.presentationPoints[0].x, 0.4)
+		self.pump(0.4)
+		let settled = view.renderedFrameCount
+		self.pump(0.2)
+		XCTAssertEqual(view.renderedFrameCount, settled)
+	}
+
+	@MainActor func testPropertyAnimatorSpringHandlesAndFinishCurrent() throws {
+		let view = try self.makeView()
+		view.bezierPoints = view.resolvedBezierPoints
+		view.meshBackgroundColor = .red
+		let window = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.1)
+		let start = view.bezierPoints![0].trailingControlPoint
+		let animator = UIViewPropertyAnimator(duration: 0.7, dampingRatio: 0.8, animations: {
+			view.bezierPoints![0].trailingControlPoint = CGPoint(x: 0.6, y: 0.3)
+			view.meshBackgroundColor = .blue
+		})
+		animator.startAnimation()
+		self.pump(0.1)
+		animator.pauseAnimation()
+		animator.fractionComplete = 0.5
+		self.pump(0.1)
+		let displayed = (view.layer.presentation() as? KHMeshGradientLayer)?.snapshot()?.vertices[0].trailingControlPoint
+		XCTAssertNotNil(displayed)
+		XCTAssertNotEqual(displayed, start)
+		animator.stopAnimation(false)
+		animator.finishAnimation(at: .current)
+		self.pump(0.1)
+		XCTAssertEqual(view.bezierPoints![0].trailingControlPoint.x, displayed!.x, accuracy: 0.01)
+		XCTAssertEqual(view.resolvedBezierPoints[0].trailingControlPoint.x, displayed!.x, accuracy: 0.01)
+		let settled = view.renderedFrameCount
+		self.pump(0.2)
+		XCTAssertEqual(view.renderedFrameCount, settled)
+	}
+
+	@MainActor func testPropertyAnimatorRestoresDynamicColorsAndAddsAnimations() throws {
+		let view = try self.makeView()
+		let original = UIColor { traits in traits.userInterfaceStyle == .dark ? .green : .red }
+		view.colors = Array(repeating: original, count: 4)
+		let window = self.attach(view)
+		defer { window.isHidden = true }
+		self.pump(0.1)
+		let animator = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: { view.colors[0] = .blue })
+		animator.startAnimation()
+		animator.pauseAnimation()
+		animator.addAnimations({ view.points[1].y = 0.4 })
+		animator.fractionComplete = 0.5
+		self.pump(0.1)
+		XCTAssertGreaterThan(view.presentationPoints[1].y, 0)
+		animator.stopAnimation(false)
+		animator.finishAnimation(at: .start)
+		self.pump(0.1)
+		XCTAssertEqual(view.points[1].y, 0, accuracy: 0.01)
+		XCTAssertEqual(view.colors[0].resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)).cgColor, UIColor.green.cgColor)
+		view.overrideUserInterfaceStyle = .dark
+		self.pump(0.1)
+		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 0, y: 0)
+		XCTAssertGreaterThan(pixel[1], 250)
+	}
+
 	@MainActor private func makeView() throws -> KHMeshGradientView {
 		guard MTLCreateSystemDefaultDevice() != nil else { throw XCTSkip("Metal is unavailable.") }
 		let view: KHMeshGradientView = KHMeshGradientView(frame: CGRect(x: 0, y: 0, width: 128, height: 128))

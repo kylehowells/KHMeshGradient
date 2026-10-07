@@ -3,7 +3,8 @@ import UIKit
 
 /// A demand-rendered, Metal-backed mesh gradient. All configuration uses normalized
 /// coordinates, with (0, 0) at the top-left and (1, 1) at the bottom-right.
-/// Points, Bézier handles, and colors animate inside `UIView.animate` blocks.
+/// Points, Bézier handles, and colors animate with `UIView.animate` and
+/// `UIViewPropertyAnimator`, including interactive scrubbing.
 open class KHMeshGradientView: UIView {
 
 	public struct MeshSize: Equatable, Sendable {
@@ -58,31 +59,47 @@ open class KHMeshGradientView: UIView {
 	/// Grid dimensions, independent of the view's size. A mesh needs at least 2 × 2 vertices.
 	open var meshSize: MeshSize = MeshSize(width: 2, height: 2) {
 		didSet {
-			if self.meshSize != oldValue { self.meshLayer.removeMeshAnimations() }
+			if self.meshSize != oldValue {
+				self.meshLayer.removeMeshAnimations()
+				self.colorSources.removeAll()
+				self.animationColorSources.removeAll()
+			}
 			self.updateMesh()
 		}
 	}
+	private var storedPoints: [CGPoint] = [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: 1, y: 1)]
 	/// Positions in row-major order. Setting this switches to automatic Bézier handles.
-	open var points: [CGPoint] = [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: 1, y: 1)] {
-		didSet { self.bezierPoints = nil; self.updateMesh() }
+	open var points: [CGPoint] {
+		get { self.storedPoints }
+		set { self.storedPoints = newValue; self.storedBezierPoints = nil; self.updateMesh() }
 	}
+	private var storedBezierPoints: [BezierPoint]?
 	/// Explicit positions and handles. Setting a non-nil value selects explicit geometry.
 	/// Setting nil selects `points` again. Setting `points` also selects automatic geometry.
 	open var bezierPoints: [BezierPoint]? {
-		didSet { self.updateMesh() }
+		get { self.storedBezierPoints }
+		set { self.storedBezierPoints = newValue; self.updateMesh() }
 	}
+	private var storedColors: [UIColor] = [.clear, .clear, .clear, .clear]
 	/// Dynamic UIKit colors, resolved against this view's traits before rendering.
 	/// Setting these switches away from `resolvedColors`.
-	open var colors: [UIColor] = [.clear, .clear, .clear, .clear] {
-		didSet { self.resolvedColors = nil; self.updateMesh() }
+	open var colors: [UIColor] {
+		get { self.storedColors }
+		set { self.storedColors = newValue; self.storedResolvedColors = nil; self.updateMesh() }
 	}
+	private var storedResolvedColors: [CGColor]?
 	/// Already-resolved colors. Non-nil selects this source; nil selects `colors` again.
 	open var resolvedColors: [CGColor]? {
-		didSet { self.updateMesh() }
+		get { self.storedResolvedColors }
+		set { self.storedResolvedColors = newValue; self.updateMesh() }
 	}
+	private var storedMeshBackgroundColor: UIColor = .clear
 	/// Fills only pixels outside the mesh. Semi-transparent mesh pixels instead reveal
 	/// the view's inherited `backgroundColor` or whatever is behind the view.
-	open var meshBackgroundColor: UIColor = .clear { didSet { self.updateMesh() } }
+	open var meshBackgroundColor: UIColor {
+		get { self.storedMeshBackgroundColor }
+		set { self.storedMeshBackgroundColor = newValue; self.updateMesh() }
+	}
 	/// Use cubic color interpolation derived from neighboring vertices.
 	open var smoothsColors: Bool = true { didSet { self.updateMesh() } }
 	open var colorSpace: ColorSpace = .device { didSet { self.updateMesh() } }
@@ -120,6 +137,8 @@ open class KHMeshGradientView: UIView {
 
 	private var applicationIsActive: Bool = true
 	private var resolvedTraits: UITraitCollection?
+	private var colorSources: [String: UIColor] = [:]
+	private var animationColorSources: [String: [(CGColor, UIColor)]] = [:]
 
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -139,29 +158,39 @@ open class KHMeshGradientView: UIView {
 		self.applicationIsActive = UIApplication.shared.applicationState != .background
 		NotificationCenter.default.addObserver(self, selector: #selector(self.applicationWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(self.applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+		self.meshLayer.modelValueDidChange = { [weak self] key, value in self?.restoreModelValue(value, forKey: key) }
 		self.updateMesh()
 		self.updateRenderingAvailability()
 	}
 
 	deinit { NotificationCenter.default.removeObserver(self) }
 
-	/// Resolve UIKit's current animation action, then retarget a copy to the mesh key.
+	/// Resolve UIKit's current animation action and route it to the mesh key.
 	/// The layer owns interpolation; a Swift stored property alone cannot animate.
 	open override func action(for layer: CALayer, forKey event: String) -> CAAction? {
 		guard KHMeshGradientLayer.isMeshKey(event) else { return super.action(for: layer, forKey: event) }
 		let templateAction = super.action(for: layer, forKey: "backgroundColor")
 		guard !CATransaction.disableActions(), UIView.areAnimationsEnabled else {
-			layer.removeAnimation(forKey: event)
-			return NSNull()
-		}
-		guard let template: CABasicAnimation = templateAction as? CABasicAnimation else {
-			// UIViewPropertyAnimator's opaque action retains backgroundColor's key path.
-			// Forwarding it would animate the wrong property. Ordinary animations and
-			// springs provide copyable CABasicAnimation / CASpringAnimation actions.
+			if self.meshLayer.isSettingMeshValue { self.animationColorSources[event] = nil }
 			layer.removeAnimation(forKey: event)
 			return NSNull()
 		}
 		guard let previous: Any = (layer.presentation() ?? layer).value(forKey: event) else { return NSNull() }
+		guard let template: CABasicAnimation = templateAction as? CABasicAnimation else {
+			if let action: CAAction = templateAction, !(action is NSNull) {
+				if let source = self.colorSources[event], let color = previous as! CGColor?,
+					source.resolvedColor(with: self.traitCollection).cgColor == color {
+					if layer.animation(forKey: event) == nil { self.animationColorSources[event] = nil }
+					self.animationColorSources[event, default: []].append((color, source))
+				}
+				let redrawAction: CAAction = super.action(for: layer, forKey: "backgroundColor") ?? NSNull()
+				return MeshAnimationAction(template: action, redrawTemplate: redrawAction, fromValue: previous)
+			}
+			if self.meshLayer.isSettingMeshValue { self.animationColorSources[event] = nil }
+			layer.removeAnimation(forKey: event)
+			return NSNull()
+		}
+		self.animationColorSources[event] = nil
 		let animation: CABasicAnimation = template.copy() as! CABasicAnimation
 		animation.keyPath = event
 		animation.fromValue = previous
@@ -182,6 +211,39 @@ open class KHMeshGradientView: UIView {
 			throw NSError(domain: "KHMeshGradient", code: 1, userInfo: [NSLocalizedDescriptionKey: self.configurationError ?? "Invalid mesh configuration."])
 		}
 		return try MeshRenderer.shared.get().image(mesh, size: size, scale: scale)
+	}
+
+	/// UIKit writes the layer's model back when an interactive animator finishes at
+	/// its start/current position. Keep the UIKit-facing configuration in sync without
+	/// creating new actions or overwriting other animations in the same transaction.
+	private func restoreModelValue(_ value: Any?, forKey key: String) {
+		if key == "mesh_background", let color = value as! CGColor? {
+			self.storedMeshBackgroundColor = self.restoredColor(color, forKey: key)
+			return
+		}
+		let parts = key.split(separator: "_")
+		guard parts.count == 3, let index = Int(parts[2]), index >= 0 else { return }
+		if parts[1] == "color", let color = value as! CGColor? {
+			if self.storedResolvedColors != nil, index < self.storedResolvedColors!.count { self.storedResolvedColors![index] = color }
+			else if index < self.storedColors.count { self.storedColors[index] = self.restoredColor(color, forKey: key) }
+			return
+		}
+		guard let point = (value as? NSValue)?.cgPointValue else { return }
+		if self.storedBezierPoints != nil, index < self.storedBezierPoints!.count {
+			switch parts[1] {
+			case "point": self.storedBezierPoints![index].position = point
+			case "leading": self.storedBezierPoints![index].leadingControlPoint = point
+			case "top": self.storedBezierPoints![index].topControlPoint = point
+			case "trailing": self.storedBezierPoints![index].trailingControlPoint = point
+			case "bottom": self.storedBezierPoints![index].bottomControlPoint = point
+			default: break
+			}
+		}
+		else if parts[1] == "point", index < self.storedPoints.count { self.storedPoints[index] = point }
+	}
+
+	private func restoredColor(_ color: CGColor, forKey key: String) -> UIColor {
+		self.animationColorSources[key]?.last(where: { $0.0 == color })?.1 ?? UIColor(cgColor: color)
 	}
 
 	private func updateMesh() {
@@ -215,10 +277,13 @@ open class KHMeshGradientView: UIView {
 				self.meshLayer.setMeshValue(NSValue(cgPoint: vertex.topControlPoint), forKey: "mesh_top_\(index)")
 				self.meshLayer.setMeshValue(NSValue(cgPoint: vertex.trailingControlPoint), forKey: "mesh_trailing_\(index)")
 				self.meshLayer.setMeshValue(NSValue(cgPoint: vertex.bottomControlPoint), forKey: "mesh_bottom_\(index)")
-				self.meshLayer.setMeshValue(colors[index], forKey: "mesh_color_\(index)")
+				let colorKey: String = "mesh_color_\(index)"
+				self.meshLayer.setMeshValue(colors[index], forKey: colorKey)
+				self.colorSources[colorKey] = self.resolvedColors == nil ? self.colors[index] : nil
 			}
 		}
 		self.meshLayer.setMeshValue(self.meshBackgroundColor.resolvedColor(with: self.traitCollection).cgColor, forKey: "mesh_background")
+		self.colorSources["mesh_background"] = self.meshBackgroundColor
 		self.meshLayer.setNeedsDisplay()
 	}
 

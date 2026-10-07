@@ -19,10 +19,14 @@ final class GalleryViewController: UIViewController {
 		self._view.cards = self.cards.map({ $0._view })
 		self._view.animateButton.addTarget(self, action: #selector(self.animateMesh), for: .touchUpInside)
 		self._view.resetButton.addTarget(self, action: #selector(self.resetMeshes), for: .touchUpInside)
+		self._view.scrubSlider.addTarget(self, action: #selector(self.scrubChanged), for: .valueChanged)
+		self._view.resumeButton.addTarget(self, action: #selector(self.resumeMeshes), for: .touchUpInside)
 		self._view.debugControl.addTarget(self, action: #selector(self.debugChanged), for: .valueChanged)
 	}
 
 	@objc private func animateMesh() { for card in self.cards { card.animateMesh() } }
+	@objc private func scrubChanged() { for card in self.cards { card.scrub(to: CGFloat(self._view.scrubSlider.value)) } }
+	@objc private func resumeMeshes() { for card in self.cards { card.resume() } }
 	@objc private func resetMeshes() { for card in self.cards { card.reset() } }
 	@objc private func debugChanged() {
 		let modes: [KHMeshGradientView.DebugMode] = [.none, .mesh, .controlPoints, .tessellation]
@@ -56,6 +60,18 @@ final class GalleryView: UIView {
 		button.setTitle("Reset", for: .normal)
 		return button
 	}()
+	let scrubLabel: UILabel = {
+		let label = UILabel()
+		label.text = "Scrub UIKit"
+		label.font = .systemFont(ofSize: 13)
+		return label
+	}()
+	let scrubSlider: UISlider = UISlider()
+	let resumeButton: UIButton = {
+		let button = UIButton(type: .system)
+		button.setTitle("Resume", for: .normal)
+		return button
+	}()
 	let debugControl: UISegmentedControl = UISegmentedControl(items: ["Gradient", "Mesh", "Handles", "Grid"])
 	let scrollView: UIScrollView = UIScrollView()
 	var cards: [MeshCardView] = [] { didSet { self.setNeedsLayout() } }
@@ -63,7 +79,7 @@ final class GalleryView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.backgroundColor = .systemGroupedBackground
-		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.scrollView] { self.addSubview(view) }
+		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.scrubLabel, self.scrubSlider, self.resumeButton, self.scrollView] { self.addSubview(view) }
 		self.debugControl.selectedSegmentIndex = 0
 	}
 	@available(*, unavailable)
@@ -78,7 +94,10 @@ final class GalleryView: UIView {
 		self.animateButton.frame = CGRect(x: 20, y: top + 72, width: 92, height: 36)
 		self.resetButton.frame = CGRect(x: 118, y: top + 72, width: 64, height: 36)
 		self.debugControl.frame = CGRect(x: 20, y: top + 118, width: width - 40, height: 32)
-		let scrollTop: CGFloat = top + 164
+		self.scrubLabel.frame = CGRect(x: 20, y: top + 162, width: 80, height: 32)
+		self.scrubSlider.frame = CGRect(x: 105, y: top + 162, width: max(40, width - 205), height: 32)
+		self.resumeButton.frame = CGRect(x: width - 92, y: top + 162, width: 72, height: 32)
+		let scrollTop: CGFloat = top + 208
 		self.scrollView.frame = CGRect(x: 0, y: scrollTop, width: width, height: self.bounds.height - scrollTop)
 		var y: CGFloat = 0
 		let cardHeight: CGFloat = min(330, (width - 52) * 0.34 + 110)
@@ -95,6 +114,7 @@ final class MeshCardViewController: UIViewController {
 	private let state: MeshSampleState
 	private var alternate: Bool = false
 	private var hosting: UIViewController?
+	private var propertyAnimator: UIViewPropertyAnimator?
 	init(sample: MeshSample) { self.original = sample; self.state = MeshSampleState(sample: sample); super.init(nibName: nil, bundle: nil) }
 	@available(*, unavailable)
 	required init?(coder: NSCoder) { fatalError() }
@@ -127,6 +147,8 @@ final class MeshCardViewController: UIViewController {
 	}
 
 	func animateMesh() {
+		if self.propertyAnimator?.state == .active { self.propertyAnimator?.stopAnimation(true) }
+		self.propertyAnimator = nil
 		self.alternate.toggle()
 		var target: MeshSample = self.original
 		if target.size.width > 2 {
@@ -144,7 +166,31 @@ final class MeshCardViewController: UIViewController {
 		})
 	}
 
+	func scrub(to fraction: CGFloat) {
+		if self.propertyAnimator?.state != .active {
+			self.reset()
+			var target = self.original
+			if target.size.width > 2 { target.points[target.size.width + 1] = CGPoint(x: 0.3, y: 0.68) }
+			else { target.colors[0] = .systemPink }
+			let animator = UIViewPropertyAnimator(duration: 2, curve: .easeInOut, animations: { [weak self] in
+				guard let self = self else { return }
+				target.apply(to: self._view.gradient)
+			})
+			self.propertyAnimator = animator
+			animator.startAnimation()
+		}
+		self.propertyAnimator?.pauseAnimation()
+		self.propertyAnimator?.fractionComplete = fraction
+	}
+
+	func resume() {
+		guard let animator = self.propertyAnimator, animator.state == .active, !animator.isRunning else { return }
+		animator.continueAnimation(withTimingParameters: nil, durationFactor: 1)
+	}
+
 	func reset() {
+		if self.propertyAnimator?.state == .active { self.propertyAnimator?.stopAnimation(true) }
+		self.propertyAnimator = nil
 		self.alternate = false
 		self._view.gradient.layer.removeAllAnimations()
 		UIView.performWithoutAnimation({ self.original.apply(to: self._view.gradient) })

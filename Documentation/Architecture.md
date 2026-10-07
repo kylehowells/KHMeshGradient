@@ -23,7 +23,7 @@ The layer also declares `@NSManaged var redrawProgress: CGFloat` and returns tru
 for its `needsDisplay(forKey:)`. Adding a mesh animation adds a separate
 redisplay animation on that declared property, with the original animation's
 timeline. These animations have independent keys so a short later animation
-does not cancel the redraw driver of a longer animation. The driver does not
+does not cancel the redraw driver of a longer animation. For ordinary UIView animation blocks, the driver does not
 participate in UIKit completion bookkeeping. It has no visible value and does
 not define a separate clock, timer, or fixed frame rate.
 
@@ -34,10 +34,36 @@ suppress a changed frame. It compares the snapshot with its last submitted
 snapshot. Identical snapshots, including any extra
 end-of-animation invalidation, produce no additional GPU submission.
 
-`UIViewPropertyAnimator` supplies an opaque CAAction that retains the native
-property's key path. Forwarding it would animate the background instead of the
-mesh. This version suppresses that action and documents interactive animators
-as unsupported. No private APIs or runtime introspection are used.
+`UIViewPropertyAnimator` supplies a CAAction rather than a directly copyable
+animation. `MeshAnimationAction` runs that action on the mesh layer. While it
+runs, the layer's public `add(_:forKey:)` override retargets the **original**
+CABasicAnimation in place, replacing its key path, endpoints, and storage key
+before passing it to `super.add`. A copied animation would leave UIKit tracking
+the original background-color animation. Mutating the original before UIKit
+registers it lets UIKit subsequently pause, scrub, reverse, and resume the custom
+key. Native helper animations pass through untouched.
+
+Each mesh action also runs a second native action for `redrawProgress`, stored
+under its own `redraw_<mesh key>` key. UIKit manages that driver's timeline too;
+it cannot expire on the original wall-clock deadline during a long pause, and a
+short concurrent animator cannot stop a longer animator's driver. A custom
+CAAnimation KVC marker survives animation copying/re-addition and distinguishes
+these managed animations from ordinary block animations. Snapshot equality still
+prevents GPU submissions while paused.
+
+When UIKit restores the model layer at `.start` or `.current`, `setValue(_:forKey:)`
+notifies the view to synchronize its stored positions, handles, colors, and
+background without triggering a new configuration update. Original dynamic
+UIColor sources are retained for animated color restoration, so cancellation
+preserves subsequent trait-dependent resolution.
+
+This relies on experimentally verified UIKit action-registration behavior;
+Apple documents the hooks, but does not promise that its native animation action
+can be repurposed this way. There are no private selectors, class-name checks,
+ivar accesses, swizzling, or runtime introspection in the shipped implementation.
+Regression tests exercise iOS 18.2 and 26.5 Simulator and a physical M1 iPad
+running iPadOS 18.6 in Release. iOS 15 remains the deployment target,
+but pre-iOS-18 runtimes are unverified.
 
 ## Geometry and color
 
@@ -88,6 +114,10 @@ CPU and physical footprint for both renderers. Its display link exists only in
 benchmark mode and is invalidated when a run finishes.
 
 ## References
+
+- [UIViewPropertyAnimator](https://developer.apple.com/documentation/uikit/uiviewpropertyanimator)
+- [CALayer.add(_:forKey:)](https://developer.apple.com/documentation/quartzcore/calayer/add(_:forkey:))
+- [CAAction.run(forKey:object:arguments:)](https://developer.apple.com/documentation/quartzcore/caaction/run(forkey:object:arguments:))
 
 - [CALayer's KVC container support](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html)
 - [needsDisplay(forKey:)](https://developer.apple.com/documentation/quartzcore/calayer/needsdisplay(forkey:))

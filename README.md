@@ -120,9 +120,30 @@ animate with ordinary `UIView.animate` blocks, including UIKit springs. Arrays
 must retain their topology. Grid dimensions, interpolation mode, and debug mode
 change immediately. Interruption starts from presentation values.
 
-`UIViewPropertyAnimator` and interactive scrubbing are **not supported** in this
-version. Its opaque UIKit actions cannot be retargeted safely with the basic
-animation bridge. Do not use it to animate mesh properties.
+`UIViewPropertyAnimator` also supports mesh properties, including pause, scrub,
+resume, reversal, springs, and finishing at `.start`, `.current`, or `.end`:
+
+```swift
+let animator = UIViewPropertyAnimator(duration: 2, curve: .easeInOut, animations: {
+	gradientView.points[4] = CGPoint(x: 0.7, y: 0.3)
+	gradientView.colors[4] = .systemPink
+})
+animator.startAnimation()
+animator.pauseAnimation()
+animator.fractionComplete = 0.5 // For example, driven by a UISlider.
+animator.continueAnimation(withTimingParameters: nil, durationFactor: 1)
+```
+
+The example gallery's **Scrub UIKit** slider and **Resume** button exercise this
+path. Paused animators skip GPU submissions until their presentation values
+change. Finishing at the start/current position also updates the view's model
+configuration.
+
+The bridge uses public Core Animation hooks, without private selectors or runtime
+introspection. UIKit's internal action/registration behavior is undocumented;
+interactive support is verified on iOS 18.2/26.5 Simulator and a physical iPad running iPadOS 18.6, with regression tests in the
+example scheme. The package still targets iOS 15, but earlier runtimes have not
+been verified.
 
 ## Rendering and debugging
 

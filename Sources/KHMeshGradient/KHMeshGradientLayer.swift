@@ -31,6 +31,18 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	private var lastSnapshot: MeshGeometry.Snapshot?
 	private var lastDrawableSize: CGSize = .zero
 	private var hasRendered: Bool = false
+	var modelValueDidChange: ((String, Any?) -> Void)?
+	private(set) var isSettingMeshValue: Bool = false
+	private var actionRoute: (path: String, key: String, from: Any, to: Any?)?
+	/// CAAnimation supports custom KVC values, and preserves them in copies.
+	private static let managedAnimationMarker = "khMeshAnimatorManaged"
+
+	func runUIKitAction(_ action: CAAction, forKey key: String, storageKey: String? = nil, fromValue: Any, toValue: Any? = nil, arguments: [AnyHashable: Any]?) {
+		let previous = self.actionRoute
+		self.actionRoute = (key, storageKey ?? key, fromValue, toValue)
+		defer { self.actionRoute = previous }
+		action.run(forKey: key, object: self, arguments: arguments)
+	}
 
 	static func isMeshKey(_ key: String) -> Bool { key.hasPrefix("mesh_") }
 
@@ -73,7 +85,14 @@ final class KHMeshGradientLayer: CAMetalLayer {
 
 	func setMeshValue(_ value: Any, forKey key: String) {
 		if let old: NSObject = self.value(forKey: key) as? NSObject, old.isEqual(value) { return }
+		self.isSettingMeshValue = true
+		defer { self.isSettingMeshValue = false }
 		self.setValue(value, forKey: key)
+	}
+
+	override func setValue(_ value: Any?, forKey key: String) {
+		super.setValue(value, forKey: key)
+		if !self.isSettingMeshValue && Self.isMeshKey(key) { self.modelValueDidChange?(key, value) }
 	}
 
 	func removeMeshAnimations() {
@@ -85,9 +104,24 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	}
 
 	override func add(_ animation: CAAnimation, forKey key: String?) {
+		if let route = self.actionRoute, let basic: CABasicAnimation = animation as? CABasicAnimation,
+			basic.keyPath == "backgroundColor" {
+			// Keep the original object: UIKit registers it after this override returns.
+			// Retarget only the native property animation, leaving helper animations intact.
+			basic.keyPath = route.path
+			basic.fromValue = route.from
+			basic.toValue = route.to ?? self.value(forKey: route.path)
+			basic.byValue = nil
+			basic.isAdditive = false
+			basic.isCumulative = false
+			basic.setValue(true, forKey: Self.managedAnimationMarker)
+			super.add(basic, forKey: route.key)
+			return
+		}
 		super.add(animation, forKey: key)
 		guard let property: CAPropertyAnimation = animation as? CAPropertyAnimation,
 			let path: String = property.keyPath, Self.isMeshKey(path) else { return }
+		if animation.value(forKey: Self.managedAnimationMarker) as? Bool == true { return }
 		let pulse: CABasicAnimation = CABasicAnimation(keyPath: "redrawProgress")
 		pulse.fromValue = 0
 		pulse.toValue = 1
