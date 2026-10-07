@@ -165,6 +165,117 @@ final class KHMeshGradientTests: XCTestCase {
 		XCTAssertGreaterThan(pixel[1], 250)
 	}
 
+	@MainActor func testDistinctViewsBatchTogetherAndStopAtIdle() throws {
+		let container = UIView(frame: CGRect(x: 0, y: 0, width: 256, height: 256))
+		let views = try (0..<4).map({ index -> KHMeshGradientView in
+			let view = try self.makeView()
+			view.frame.origin = CGPoint(x: (index % 2) * 128, y: (index / 2) * 128)
+			container.addSubview(view)
+			return view
+		})
+		let window = self.attach(container)
+		defer { window.isHidden = true }
+		self.pump(0.2)
+		let renderer = try MeshRenderer.shared.get()
+		let before = renderer.submittedBatchCount
+		let counts = views.map({ $0.renderedFrameCount })
+		for (index, view) in views.enumerated() {
+			view.resetRenderingStatistics()
+			view.collectsRenderingStatistics = true
+			view.colors = Array(repeating: UIColor(hue: CGFloat(index) / 4, saturation: 1, brightness: 1, alpha: 1), count: 4)
+		}
+		CATransaction.flush()
+		renderer.flush()
+		XCTAssertEqual(renderer.submittedBatchCount, before + 1)
+		self.pump(0.15)
+		for (index, view) in views.enumerated() {
+			XCTAssertEqual(view.renderedFrameCount, counts[index] + 1)
+			XCTAssertEqual(view.renderingStatistics.commandBufferCount, 0.25, accuracy: 0.0001)
+			XCTAssertEqual(view.renderingStatistics.renderPassCount, 0.25, accuracy: 0.0001)
+			XCTAssertEqual(view.renderingStatistics.gpuErrorCount, 0)
+		}
+		let settled = renderer.submittedBatchCount
+		self.pump(0.2)
+		XCTAssertEqual(renderer.submittedBatchCount, settled)
+	}
+
+	@MainActor func testBatchPixelsMatchIndependentRendersAndDoNotBleed() throws {
+		let renderer = try MeshRenderer.shared.get()
+		let views = try (0..<9).map({ index -> KHMeshGradientView in
+			let view = try self.makeView()
+			view.points[3] = CGPoint(x: 0.6, y: 0.7)
+			view.meshBackgroundColor = UIColor(hue: CGFloat(index) / 9, saturation: 1, brightness: 1, alpha: 0.6)
+			view.colors[0] = UIColor.red.withAlphaComponent(0.5)
+			view.colors[1] = UIColor(hue: CGFloat(index) / 9, saturation: 1, brightness: 0.8, alpha: 1)
+			if index == 1 { view.colorSpace = .perceptual }
+			if index == 2 || index == 7 { view.debugMode = .controlPoints }
+			return view
+		})
+		var sizes = [CGSize](repeating: CGSize(width: 32, height: 24), count: 9)
+		sizes[8] = CGSize(width: 53, height: 41)
+		func texture(_ size: CGSize) throws -> MTLTexture {
+			let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: Int(size.width), height: Int(size.height), mipmapped: false)
+			descriptor.storageMode = .shared
+			descriptor.usage = .renderTarget
+			return try XCTUnwrap(renderer.device.makeTexture(descriptor: descriptor))
+		}
+		func pixels(_ texture: MTLTexture) -> [UInt8] {
+			var bytes = [UInt8](repeating: 0, count: texture.width * texture.height * 4)
+			texture.getBytes(&bytes, bytesPerRow: texture.width * 4, from: MTLRegionMake2D(0, 0, texture.width, texture.height), mipmapLevel: 0)
+			return bytes
+		}
+		let meshes = views.map({ ($0.layer as! KHMeshGradientLayer).snapshot() })
+		let targets = try sizes.map(texture)
+		let batch = try renderer.render(meshes, into: targets)
+		batch.waitUntilCompleted()
+		XCTAssertNil(batch.error)
+		for index in views.indices {
+			let reference = try texture(sizes[index])
+			let command = try renderer.render([meshes[index]], into: [reference])
+			command.waitUntilCompleted()
+			XCTAssertNil(command.error)
+			let maximumDifference = zip(pixels(targets[index]), pixels(reference)).map({ abs(Int($0.0) - Int($0.1)) }).max()!
+			XCTAssertEqual(maximumDifference, 0, "Batches must preserve distinct colors, outside background, transparency, and debug overlays.")
+		}
+	}
+
+	@MainActor func testMultipleAnimatedViewsCoalesceAndScrubTogether() throws {
+		let container = UIView(frame: CGRect(x: 0, y: 0, width: 256, height: 256))
+		let views = try (0..<4).map({ index -> KHMeshGradientView in
+			let view = try self.makeView()
+			view.frame.origin = CGPoint(x: (index % 2) * 128, y: (index / 2) * 128)
+			container.addSubview(view)
+			return view
+		})
+		let window = self.attach(container)
+		defer { window.isHidden = true }
+		self.pump(0.2)
+		for view in views { view.resetRenderingStatistics(); view.collectsRenderingStatistics = true }
+		let animator = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: {
+			for view in views { view.points[0] = CGPoint(x: 0.4, y: 0.2) }
+		})
+		animator.startAnimation()
+		self.pump(0.2)
+		animator.pauseAnimation()
+		self.pump(0.1)
+		let statistics = views.map({ $0.renderingStatistics })
+		let buffers = statistics.reduce(0, { $0 + $1.commandBufferCount })
+		let maximumDrawCount = statistics.map({ $0.cpuFrameCount }).max()!
+		XCTAssertGreaterThan(maximumDrawCount, 2)
+		XCTAssertLessThanOrEqual(buffers, Double(maximumDrawCount) + 2, "Animated views must share submissions too.")
+		let renderer = try MeshRenderer.shared.get()
+		let before = renderer.submittedBatchCount
+		animator.fractionComplete = 0.75
+		self.pump(0.1)
+		for view in views { XCTAssertEqual(view.presentationPoints[0].x, 0.3, accuracy: 0.01) }
+		XCTAssertEqual(renderer.submittedBatchCount, before + 1)
+		let paused = renderer.submittedBatchCount
+		self.pump(0.2)
+		XCTAssertEqual(renderer.submittedBatchCount, paused)
+		animator.stopAnimation(false)
+		animator.finishAnimation(at: .current)
+	}
+
 	@MainActor private func makeView() throws -> KHMeshGradientView {
 		guard MTLCreateSystemDefaultDevice() != nil else { throw XCTSkip("Metal is unavailable.") }
 		let view: KHMeshGradientView = KHMeshGradientView(frame: CGRect(x: 0, y: 0, width: 128, height: 128))

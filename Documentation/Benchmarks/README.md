@@ -1,5 +1,7 @@
 # Physical-device performance comparison
 
+These are preserved measurements of the earlier renderer. See the [current optimization results](Optimized/README.md) for the batched implementation.
+
 SwiftUI uses less whole-app CPU time in every measured workload. KH has a memory
 advantage at 15 larger surfaces, but loses that advantage in the high-count small
 surface workload. At 120 Hz, 30 and 60 independent KH views expose a clear update

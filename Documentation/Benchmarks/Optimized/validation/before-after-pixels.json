@@ -1,0 +1,151 @@
+{
+  "os": "26.5",
+  "scope": "Nine original gradient/debug fixtures and SwiftUI references, regenerated after optimization; comparison against preserved original pixels.",
+  "images": [
+    {
+      "image": "bezier-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "organic-explicit-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "opacity-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "perceptual-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "linear-colors-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "organic-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "bezier-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "organic-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "corners-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "warped-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "linear-colors-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "warped-explicit-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "background-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "opacity-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "rainbow-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "linear-colors-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "warped-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "rainbow-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "perceptual-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "rainbow-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "background-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "corners-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "organic-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "perceptual-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "background-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "warped-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "bezier-swiftui.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "corners-kh.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    },
+    {
+      "image": "opacity-debug.png",
+      "maximumChannelDifference": 0,
+      "changedPixels": 0
+    }
+  ]
+}

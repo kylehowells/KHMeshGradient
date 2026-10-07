@@ -3,6 +3,7 @@ import simd
 
 /// CPU-side patch construction. The GPU evaluates the resulting bicubic surfaces.
 enum MeshGeometry {
+	private static let resolvedColorSpace: CGColorSpace = CGColorSpace(name: CGColorSpace.extendedSRGB)!
 	struct Snapshot: Equatable {
 		var size: KHMeshGradientView.MeshSize
 		var vertices: [KHMeshGradientView.BezierPoint]
@@ -40,11 +41,12 @@ enum MeshGeometry {
 	/// to a bicubic control net. Shared boundaries agree exactly between patches.
 	static func positionNet(_ tl: KHMeshGradientView.BezierPoint, _ tr: KHMeshGradientView.BezierPoint,
 		_ bl: KHMeshGradientView.BezierPoint, _ br: KHMeshGradientView.BezierPoint) -> [SIMD4<Float>] {
-		let top: [SIMD2<Float>] = [tl.position, tl.trailingControlPoint, tr.leadingControlPoint, tr.position].map(self.vector)
-		let bottom: [SIMD2<Float>] = [bl.position, bl.trailingControlPoint, br.leadingControlPoint, br.position].map(self.vector)
-		let left: [SIMD2<Float>] = [tl.position, tl.bottomControlPoint, bl.topControlPoint, bl.position].map(self.vector)
-		let right: [SIMD2<Float>] = [tr.position, tr.bottomControlPoint, br.topControlPoint, br.position].map(self.vector)
+		let top = simd_float4x2(columns: (self.vector(tl.position), self.vector(tl.trailingControlPoint), self.vector(tr.leadingControlPoint), self.vector(tr.position)))
+		let bottom = simd_float4x2(columns: (self.vector(bl.position), self.vector(bl.trailingControlPoint), self.vector(br.leadingControlPoint), self.vector(br.position)))
+		let left = simd_float4x2(columns: (self.vector(tl.position), self.vector(tl.bottomControlPoint), self.vector(bl.topControlPoint), self.vector(bl.position)))
+		let right = simd_float4x2(columns: (self.vector(tr.position), self.vector(tr.bottomControlPoint), self.vector(br.topControlPoint), self.vector(br.position)))
 		var result: [SIMD4<Float>] = []
+		result.reserveCapacity(16)
 		for y in 0..<4 {
 			let v: Float = Float(y) / 3
 			for x in 0..<4 {
@@ -57,7 +59,7 @@ enum MeshGeometry {
 		return result
 	}
 
-	static func patchData(_ mesh: Snapshot) -> [SIMD4<Float>] {
+	static func colorPatchData(_ mesh: Snapshot) -> [SIMD4<Float>] {
 		let w: Int = mesh.size.width
 		let h: Int = mesh.size.height
 		let colors: [SIMD4<Float>] = mesh.colors.map({
@@ -92,15 +94,15 @@ enum MeshGeometry {
 			return (color(x + 1, y + 1) - color(x - 1, y + 1) - color(x + 1, y - 1) + color(x - 1, y - 1)) * 0.25
 		}
 		var result: [SIMD4<Float>] = []
+		result.reserveCapacity((w - 1) * (h - 1) * 16)
 		for y in 0..<(h - 1) {
 			for x in 0..<(w - 1) {
-				let a: Int = y * w + x
-				result += self.positionNet(mesh.vertices[a], mesh.vertices[a + 1], mesh.vertices[a + w], mesh.vertices[a + w + 1])
 				let c00: SIMD4<Float> = color(x, y)
 				let c10: SIMD4<Float> = color(x + 1, y)
 				let c01: SIMD4<Float> = color(x, y + 1)
 				let c11: SIMD4<Float> = color(x + 1, y + 1)
 				var net: [SIMD4<Float>] = []
+				net.reserveCapacity(16)
 				for j in 0..<4 {
 					let v: Float = Float(j) / 3
 					for i in 0..<4 {
@@ -128,6 +130,23 @@ enum MeshGeometry {
 		return result
 	}
 
+	static func patchData(_ mesh: Snapshot, colorNets: [SIMD4<Float>]? = nil) -> [SIMD4<Float>] {
+		let colors = colorNets ?? self.colorPatchData(mesh)
+		let w = mesh.size.width, h = mesh.size.height
+		var result: [SIMD4<Float>] = []
+		result.reserveCapacity((w - 1) * (h - 1) * 32)
+		var colorOffset = 0
+		for y in 0..<(h - 1) {
+			for x in 0..<(w - 1) {
+				let a = y * w + x
+				result.append(contentsOf: self.positionNet(mesh.vertices[a], mesh.vertices[a + 1], mesh.vertices[a + w], mesh.vertices[a + w + 1]))
+				result.append(contentsOf: colors[colorOffset..<(colorOffset + 16)])
+				colorOffset += 16
+			}
+		}
+		return result
+	}
+
 	static func evaluate(_ net: [SIMD4<Float>], u: Float, v: Float) -> SIMD4<Float> {
 		func weights(_ t: Float) -> [Float] {
 			let s: Float = 1 - t
@@ -145,8 +164,7 @@ enum MeshGeometry {
 	static func mix<T: SIMD>(_ a: T, _ b: T, _ t: T.Scalar) -> T where T.Scalar: BinaryFloatingPoint { a + (b - a) * t }
 
 	static func rgba(_ color: CGColor) -> SIMD4<Float> {
-		let space: CGColorSpace = CGColorSpace(name: CGColorSpace.extendedSRGB)!
-		guard let converted: CGColor = color.converted(to: space, intent: .relativeColorimetric, options: nil),
+		guard let converted: CGColor = color.converted(to: self.resolvedColorSpace, intent: .relativeColorimetric, options: nil),
 			let c: [CGFloat] = converted.components, c.count >= 4 else { return .zero }
 		return SIMD4<Float>(Float(c[0]), Float(c[1]), Float(c[2]), Float(c[3]))
 	}

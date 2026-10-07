@@ -7,9 +7,19 @@ and in the example's reference panels.
 
 ## Data and interpolation
 
-The view retains UIKit configuration. Effective positions, handles, and resolved
-colors are written into CALayer KVC keys such as `mesh_point_4` and
-`mesh_color_4`. Layer presentation copies contain the interpolated values.
+The view retains UIKit configuration. Ordinary changes use a cached immutable
+model snapshot, avoiding per-vertex KVC reads/writes and repeated UIColor/CGColor
+conversion. Color resolution is invalidated by color or trait changes; color
+control nets are cached until their inputs or interpolation settings change.
+Automatic handles are rebuilt when geometry changes.
+
+Before an animation begins, the layer seeds CALayer KVC keys such as
+`mesh_point_4` and `mesh_color_4` from the preceding model snapshot. It then writes
+changed values. Presentation copies interpolate those keys; unchanged resolved
+colors can reuse the model's converted components. A newly seeded key may not
+exist in an older presentation copy, so action lookup falls back to the model.
+The initial UIKit action is consumed rather than abandoned, preserving property
+animator completion bookkeeping.
 
 For regular animation blocks, `action(for:forKey:)` requests UIKit's
 `backgroundColor` animation action, copies the returned `CABasicAnimation` or
@@ -74,9 +84,11 @@ boundary curves exactly. Interior color interpolation is bicubic, with zero
 outer color derivatives and monotonic tangents at interior color extrema.
 Unsmoothed colors use bilinear interpolation independently of patch geometry.
 
-The CPU uploads 16 position controls and 16 color controls per patch. The vertex
-shader generates a regular parameter-space triangle grid using vertex and
-instance IDs and evaluates the bicubic surfaces. The fragment shader converts
+The CPU uploads 16 position controls and 16 color controls per patch. Boundary
+vectors use stack SIMD matrices rather than four small heap arrays. The vertex
+shader uses a shared indexed parameter grid and patch instance IDs to evaluate
+the bicubic surfaces. Triangle order, tessellation density, and shading remain
+unchanged; indexed draws permit reuse of vertices shared by adjacent triangles. The fragment shader converts
 the interpolated color back from the selected interpolation space and writes
 premultiplied-alpha sRGB. Positions and colors need no per-frame CPU tessellation.
 
@@ -86,7 +98,12 @@ Debug overlays use a separate premultiplied blending pipeline.
 
 ## Presentation and resources
 
-Pipelines and the command queue are shared and initialized once. Xcode compiles
+The command queue and pipeline cache are shared. Pipeline variants select one
+color attachment, with writes to other attachments disabled. Their cache is
+bounded to 32 states; the shared triangle-index cache retains at most eight grids.
+Per-command upload arenas use aligned regions in reusable shared buffers. Buffers
+return to the locked pool only after GPU completion; cached idle buffers are
+bounded to 4 MiB, separately from in-flight GPU-owned buffers. Xcode compiles
 the bundled Metal source into the package's default metallib. Source compilation
 is a fallback for packaging workflows that copy the source resource instead.
 
@@ -94,10 +111,26 @@ The model layer owns GPU work. Presentation copies share the renderer and copy
 non-animated configuration in `init(layer:)`; they do not create devices or
 pipelines. Drawable dimensions follow view bounds and display scale.
 
-For UIKit synchronization, `presentsWithTransaction` is enabled. Commands are
-committed, `waitUntilScheduled()` is called, and the drawable is presented
-directly. Onscreen rendering does not wait for GPU completion. Offscreen image
-export intentionally waits before reading a shared texture.
+A weak registry tracks model layers. `setNeedsDisplay()` records library-owned
+dirtiness because Core Animation may clear its own display flags before calling
+`display()`. The first changed layer gathers other dirty or actively animating
+layers; unchanged snapshots and suspended/hidden/detached layers are skipped.
+Subsequent display callbacks see the already submitted snapshot and skip drawing.
+
+All changed views share one command buffer. Compatible drawable sizes share a
+render pass with up to eight independent color attachments on supported GPU
+families; unknown families use one target. Each mesh draw selects its target
+through the fragment output and pipeline write masks. Every view keeps its own
+framebuffer-only CAMetalLayer texture, background clear, debug blending, clipping,
+and UIKit composition. There is no shared atlas or texture-copy pass.
+
+For UIKit synchronization, `presentsWithTransaction` is enabled. The batch is
+committed inside the original display transaction, `waitUntilScheduled()` is
+called once, and all drawables are presented. No additional transaction flush,
+run-loop observer, timer, or display link is installed. Triple buffering is kept:
+a device experiment with two drawables reduced this 120 Hz workload to 60 Hz.
+Onscreen rendering does not wait for GPU completion. Offscreen image export
+intentionally waits before reading a shared texture.
 
 The last drawable remains displayed during idle periods. There is no permanent
 CADisplayLink or CAMetalDisplayLink. Missing drawables trigger a delayed,
@@ -107,13 +140,23 @@ coalesced retry only while rendering is enabled. No busy-wait loop is used.
 
 `collectsRenderingStatistics` enables aggregate CPU wall-time, completed Metal
 command-buffer GPU-time, and drawable-presentation counters. It defaults to false.
-GPU callbacks use a locked store; resetting replaces the store so old in-flight
+`commandBufferCount` and `renderPassCount` allocate fractional contributions to
+each participating view; summing over all enabled views gives submission counts.
+Shared encoding setup and scheduling wait are allocated across participants.
+GPU command envelopes are likewise divided equally among participating views,
+rather than attributing the entire batch duration to every view. These are
+allocations, not isolated timings of individual meshes. `gpuFrameCount` counts
+this view's draws with completed timing samples, not independent command buffers.
+The system compositor remains outside their scope. GPU callbacks use a locked store; resetting replaces the store so old in-flight
 completions cannot contaminate a new measurement. No per-frame sample arrays are
 retained by the library. The example benchmark separately samples whole-process
 CPU and physical footprint for both renderers. Its display link exists only in
 benchmark mode and is invalidated when a run finishes.
 
 ## References
+
+- [Metal command-buffer best practices](https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/CommandBuffers.html)
+- [Metal render-target limits](https://developer.apple.com/metal/feature-sets/)
 
 - [UIViewPropertyAnimator](https://developer.apple.com/documentation/uikit/uiviewpropertyanimator)
 - [CALayer.add(_:forKey:)](https://developer.apple.com/documentation/quartzcore/calayer/add(_:forkey:))

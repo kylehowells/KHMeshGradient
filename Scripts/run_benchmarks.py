@@ -44,7 +44,8 @@ def summary(data):
         'callback_fps': active['updateCount'] / seconds,
         'callback_p95_ms': percentile(active['callbackIntervalsMS'], .95),
         'footprint_mb': footprint, 'incremental_footprint_mb': footprint - baseline_footprint,
-        'kh_gpu_ms_per_mesh': gpu_ms,
+        'kh_gpu_ms_per_mesh': gpu_ms if data.get('metalGPUTimeAllocation') != 'equal-share-of-batch' else None,
+        'kh_gpu_equal_share_ms_per_mesh': gpu_ms if data.get('metalGPUTimeAllocation') == 'equal-share-of-batch' else None,
         'thermal_max': max(s['thermalState'] for p in data['phases'] for s in p['memorySamples']),
         'idle_cpu_percent': (idle['end']['cpuSeconds'] - idle['start']['cpuSeconds']) / (idle['end']['wallTime'] - idle['start']['wallTime']) * 100,
     }

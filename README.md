@@ -148,7 +148,10 @@ been verified.
 ## Rendering and debugging
 
 No timer or permanent display link runs. Core Animation drives redisplay while
-mesh properties animate. Unchanged snapshots skip GPU submission. A static mesh
+mesh properties animate. Dirty views share a command buffer, and compatible
+drawable sizes share render passes with up to eight independent targets. Indexed
+triangles and reusable upload buffers keep the original mesh quality. Unchanged
+snapshots skip GPU submission. A static mesh
 keeps its last submitted image and does no recurring rendering work.
 
 ```swift
@@ -182,18 +185,26 @@ gradientView.collectsRenderingStatistics = true
 gradientView.resetRenderingStatistics()
 // Change or animate the mesh, then inspect after GPU work completes.
 let statistics = gradientView.renderingStatistics
-let gpuMillisecondsPerDraw = statistics.gpuFrameCount == 0 ? 0 :
+let allocatedGPUMillisecondsPerDraw = statistics.gpuFrameCount == 0 ? 0 :
 	statistics.gpuFrameSeconds * 1000 / Double(statistics.gpuFrameCount)
+// These are fractional contributions when other views share the batch:
+let commandBufferContribution = statistics.commandBufferCount
+let renderPassContribution = statistics.renderPassCount
 gradientView.collectsRenderingStatistics = false
 ```
 
 CPU statistics are wall times for snapshot creation, drawable acquisition,
 encoding, and scheduling; they exclude public property setters. GPU times cover
-completed command buffers and exclude display composition. Presentation counters
+equal shares of completed batch command-buffer envelopes and exclude display
+composition. They are allocated costs, not isolated per-view GPU durations.
+Sum the command-buffer/pass contributions and GPU shares across all participating
+views with diagnostics enabled to measure the grid. Presentation counters
 are available on device, not Simulator. Diagnostics default to off and retain
 only counters. Reset isolates subsequent frames from earlier in-flight work.
 See the [physical-device benchmark report](Documentation/Benchmarks/README.md)
-for repeated SwiftUI comparisons, memory measurements, and 120 Hz stress cases.
+for the preserved original sweep. The [optimization measurements](Documentation/Benchmarks/Optimized/README.md)
+compare the current renderer against the original library and SwiftUI on the same
+60 unique gradients, with fresh Release trials and unchanged quality.
 
 For export and tests:
 

@@ -13,9 +13,8 @@ float4 bernstein(float t) {
 
 vertex MeshOutput mesh_vertex(uint vid [[vertex_id]], uint patch [[instance_id]],
 	device const float4 *data [[buffer(0)]], constant uint &subdivisions [[buffer(1)]]) {
-	const uint2 corners[6] = { uint2(0,0), uint2(1,0), uint2(0,1), uint2(1,0), uint2(1,1), uint2(0,1) };
-	uint cell = vid / 6;
-	float2 uv = (float2(cell % subdivisions, cell / subdivisions) + float2(corners[vid % 6])) / float(subdivisions);
+	uint row = subdivisions + 1;
+	float2 uv = float2(vid % row, vid / row) / float(subdivisions);
 	float4 bu = bernstein(uv.x), bv = bernstein(uv.y);
 	float4 p = 0, c = 0;
 	for (uint y = 0; y < 4; ++y) {
@@ -35,7 +34,7 @@ float3 encode_srgb(float3 c) {
 	return select(12.92 * c, 1.055 * pow(max(c, 0.0), float3(1.0 / 2.4)) - 0.055, c > 0.0031308);
 }
 
-fragment float4 mesh_fragment(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]]) {
+inline float4 mesh_color(MeshOutput in, uint space) {
 	float4 c = in.color;
 	if (c.a <= 0.000001) { return float4(0); }
 	c.rgb /= c.a;
@@ -54,6 +53,8 @@ fragment float4 mesh_fragment(MeshOutput in [[stage_in]], constant uint &space [
 	return float4(c.rgb * c.a, c.a);
 }
 
+fragment float4 mesh_fragment(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]]) { return mesh_color(in, space); }
+
 struct DebugVertex { float2 position; float2 padding; float4 color; };
 
 vertex MeshOutput debug_vertex(uint vid [[vertex_id]], device const DebugVertex *vertices [[buffer(0)]]) {
@@ -66,3 +67,18 @@ vertex MeshOutput debug_vertex(uint vid [[vertex_id]], device const DebugVertex 
 fragment float4 debug_fragment(MeshOutput in [[stage_in]]) {
 	return float4(in.color.rgb * in.color.a, in.color.a);
 }
+
+// Only one attachment is written per draw. Independent meshes share a render
+// pass while retaining native framebuffer-only drawable storage.
+#define DEFINE_TARGET(N) \
+struct Target##N { float4 color [[color(N)]]; }; \
+fragment Target##N mesh_fragment_##N(MeshOutput in [[stage_in]], constant uint &space [[buffer(0)]]) { Target##N out; out.color = mesh_color(in, space); return out; } \
+fragment Target##N debug_fragment_##N(MeshOutput in [[stage_in]]) { Target##N out; out.color = float4(in.color.rgb * in.color.a, in.color.a); return out; }
+
+DEFINE_TARGET(1)
+DEFINE_TARGET(2)
+DEFINE_TARGET(3)
+DEFINE_TARGET(4)
+DEFINE_TARGET(5)
+DEFINE_TARGET(6)
+DEFINE_TARGET(7)

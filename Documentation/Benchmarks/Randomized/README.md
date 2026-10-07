@@ -1,5 +1,7 @@
 # Randomized 60-view stress test
 
+These are preserved measurements of the earlier renderer. See the [current optimization results](../Optimized/README.md) for the batched implementation.
+
 The original scene shared a palette and initial geometry, but every view had an
 independent motion phase. It was not 60 identical live images. This follow-up
 changes every view's palette and initial interior geometry to test whether shared

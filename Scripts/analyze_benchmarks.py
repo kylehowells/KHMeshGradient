@@ -33,6 +33,7 @@ def measure(data):
     metal = active['metalStatistics']
     cpu_frames = sum(x['cpuFrameCount'] for x in metal)
     gpu_frames = sum(x['gpuFrameCount'] for x in metal)
+    batched = data.get('metalGPUTimeAllocation') == 'equal-share-of-batch'
     presented_intervals = sum(x['presentationIntervalCount'] for x in metal)
     presented_seconds = sum(x['presentationIntervalSeconds'] for x in metal)
     updates = active['updateCount']
@@ -59,7 +60,10 @@ def measure(data):
         'idle_before_footprint_mb': statistics.mean(x['physicalFootprintBytes'] for x in idle['memorySamples']) / 2**20,
         'idle_after_footprint_mb': statistics.mean(x['physicalFootprintBytes'] for x in phases['idle-after']['memorySamples']) / 2**20,
         'kh_cpu_wall_ms_per_mesh_draw': sum(x['cpuFrameSeconds'] for x in metal) * 1000 / cpu_frames if cpu_frames else None,
-        'kh_gpu_ms_per_mesh_draw': sum(x['gpuFrameSeconds'] for x in metal) * 1000 / gpu_frames if gpu_frames else None,
+        'kh_gpu_ms_per_mesh_draw': sum(x['gpuFrameSeconds'] for x in metal) * 1000 / gpu_frames if gpu_frames and not batched else None,
+        'kh_gpu_equal_share_ms_per_mesh_draw': sum(x['gpuFrameSeconds'] for x in metal) * 1000 / gpu_frames if gpu_frames and batched else None,
+        'kh_command_buffers_per_update': sum(x.get('commandBufferCount', x['cpuFrameCount']) for x in metal) / updates if metal and data['metalStatisticsEnabled'] else None,
+        'kh_render_passes_per_update': sum(x.get('renderPassCount', x['cpuFrameCount']) for x in metal) / updates if metal and data['metalStatisticsEnabled'] else None,
         'kh_gpu_command_interval_sum_ms_per_update': sum(x['gpuFrameSeconds'] for x in metal) * 1000 / updates if gpu_frames else None,
         'kh_snapshot_ms_per_mesh_draw': sum(x['snapshotSeconds'] for x in metal) * 1000 / cpu_frames if cpu_frames else None,
         'kh_encoding_ms_per_mesh_draw': sum(x['encodingSeconds'] for x in metal) * 1000 / cpu_frames if cpu_frames else None,
