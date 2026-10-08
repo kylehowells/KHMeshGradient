@@ -24,21 +24,45 @@ See [verification details](Documentation/Verification.md).
 
 ## Installation
 
-Add this folder as a local Swift package in Xcode, select the `KHMeshGradient`
-library product, and import the module:
+### Swift Package Manager
+
+The planned public repository URL is
+`https://github.com/kylehowells/KHMeshGradient.git`. It has not been published or
+tagged yet. Once published, add it through Xcode's **File → Add Package
+Dependencies**, select the `main` branch, and add the `KHMeshGradient` product.
+
+For a Swift package, add the dependency and product to your `Package.swift`:
+
+```swift
+// In Package.dependencies:
+.package(
+	url: "https://github.com/kylehowells/KHMeshGradient.git",
+	branch: "main"
+),
+
+// In your target's dependencies:
+.product(name: "KHMeshGradient", package: "KHMeshGradient"),
+```
+
+Until publication, add this folder as a local package in Xcode, or use
+`.package(path: "../KHMeshGradient")` in your package dependencies. After a release
+is tagged, prefer a version requirement over the moving `main` branch.
+
+Import the module wherever you use the view:
 
 ```swift
 import KHMeshGradient
 ```
 
-Once this repository is published, it can also be added by its GitHub repository
-URL using Xcode's **Add Package Dependencies**. It has not been published or tagged yet.
-
 ## Basic usage
 
 ```swift
+import KHMeshGradient
+import UIKit
+
+// Inside your UIView subclass:
 let gradientView: KHMeshGradientView = KHMeshGradientView()
-gradientView.meshSize = .init(width: 3, height: 3)
+gradientView.meshSize = KHMeshGradientView.MeshSize(width: 3, height: 3)
 gradientView.points = [
 	CGPoint(x: 0, y: 0), CGPoint(x: 0.5, y: 0), CGPoint(x: 1, y: 0),
 	CGPoint(x: 0, y: 0.5), CGPoint(x: 0.5, y: 0.5), CGPoint(x: 1, y: 0.5),
@@ -293,4 +317,11 @@ See the [documentation index](Documentation/README.md),
 [architecture](Documentation/Architecture.md), and
 [comparison notes](Documentation/Comparisons/README.md) for details.
 
-MIT licensed. This repository is prepared locally for a future public GitHub push.
+## License
+
+Copyright © 2026 Kyle Howells.
+
+KHMeshGradient is dual-licensed under the [MIT License](LICENSE-MIT) or the
+[Apache License, Version 2.0](LICENSE-APACHE), at your option.
+
+SPDX identifier: `MIT OR Apache-2.0`. See [LICENSE](LICENSE) for the licensing overview.

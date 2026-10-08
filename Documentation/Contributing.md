@@ -54,16 +54,17 @@ convert existing trailing closures into named arguments.
 Keep temporary exports, profiler traces, logs, and build products in
 `DerivedData/`; it is ignored. Python environments and caches are also ignored.
 Retained reports and Markdown notes belong under `Documentation/`. Keep root
-`README.md`, `LICENSE`, `Package.swift`, and `AGENTS.md` in their conventional locations.
+`README.md`, `LICENSE`, `LICENSE-MIT`, `LICENSE-APACHE`, `Package.swift`, and
+`AGENTS.md` in their conventional locations.
 Do not remove recorded benchmark inputs merely because they were generated.
 
 ## Before the first public release
 
-The MIT license and Swift package manifest are present. This repository currently
+The MIT/Apache-2.0 dual-license texts and Swift package manifest are present. This repository currently
 has no GitHub remote or version tag. Once the API scope is settled, create the
 public repository, push the reviewed commits, and tag a semantic version that
-matches the intended stability. Update the installation section with the actual
-repository URL and released version.
+matches the intended stability. The README uses the planned repository URL with a `main` branch dependency;
+confirm that URL and replace the branch requirement with the released version.
 
 Pre-iOS-18 runtime verification is still outstanding despite the iOS 15 deployment
 target. Interactive animation uses public hooks whose UIKit registration behavior
