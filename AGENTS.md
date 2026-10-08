@@ -12,3 +12,4 @@
 - Preserve the raw-input comparison fixtures. Rebuild comparison sheets after renderer changes.
 - Do not claim pixel identity with SwiftUI or change tests merely to hide rendering differences.
 - Do not commit DerivedData, result bundles, editor state, or machine-specific paths.
+- Use the checked-in `.swiftformat` for Swift formatting; see Documentation/Contributing.md for the scoped format/lint commands.

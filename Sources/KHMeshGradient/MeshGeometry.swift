@@ -18,6 +18,7 @@ enum MeshGeometry {
 
 	static func automaticVertices(points: [CGPoint], size: KHMeshGradientView.MeshSize) -> [KHMeshGradientView.BezierPoint] {
 		guard size.width >= 2, size.height >= 2, points.count == size.vertexCount else { return [] }
+
 		return points.indices.map({ index in
 			let x: Int = index % size.width
 			let y: Int = index / size.width
@@ -41,16 +42,17 @@ enum MeshGeometry {
 	/// Four boundary Bézier curves, with the interior of the Coons surface converted
 	/// to a bicubic control net. Shared boundaries agree exactly between patches.
 	static func positionNet(_ tl: KHMeshGradientView.BezierPoint, _ tr: KHMeshGradientView.BezierPoint,
-		_ bl: KHMeshGradientView.BezierPoint, _ br: KHMeshGradientView.BezierPoint) -> [SIMD4<Float>] {
+	                        _ bl: KHMeshGradientView.BezierPoint, _ br: KHMeshGradientView.BezierPoint) -> [SIMD4<Float>]
+	{
 		let top = simd_float4x2(columns: (self.vector(tl.position), self.vector(tl.trailingControlPoint), self.vector(tr.leadingControlPoint), self.vector(tr.position)))
 		let bottom = simd_float4x2(columns: (self.vector(bl.position), self.vector(bl.trailingControlPoint), self.vector(br.leadingControlPoint), self.vector(br.position)))
 		let left = simd_float4x2(columns: (self.vector(tl.position), self.vector(tl.bottomControlPoint), self.vector(bl.topControlPoint), self.vector(bl.position)))
 		let right = simd_float4x2(columns: (self.vector(tr.position), self.vector(tr.bottomControlPoint), self.vector(br.topControlPoint), self.vector(br.position)))
 		var result: [SIMD4<Float>] = []
 		result.reserveCapacity(16)
-		for y in 0..<4 {
+		for y in 0 ..< 4 {
 			let v: Float = Float(y) / 3
-			for x in 0..<4 {
+			for x in 0 ..< 4 {
 				let u: Float = Float(x) / 3
 				let bilinear: SIMD2<Float> = self.mix(self.mix(top[0], top[3], u), self.mix(bottom[0], bottom[3], u), v)
 				let p: SIMD2<Float> = self.mix(top[x], bottom[x], v) + self.mix(left[y], right[y], u) - bilinear
@@ -70,7 +72,7 @@ enum MeshGeometry {
 		func color(_ x: Int, _ y: Int) -> SIMD4<Float> { colors[y * w + x] }
 		func tangent(_ before: SIMD4<Float>, _ current: SIMD4<Float>, _ after: SIMD4<Float>) -> SIMD4<Float> {
 			var result: SIMD4<Float> = (after - before) * 0.5
-			for component in 0..<4 {
+			for component in 0 ..< 4 {
 				let a: Float = current[component] - before[component]
 				let b: Float = after[component] - current[component]
 				// Preserve extrema rather than pulling a saturated color past its value.
@@ -96,17 +98,17 @@ enum MeshGeometry {
 		}
 		var result: [SIMD4<Float>] = []
 		result.reserveCapacity((w - 1) * (h - 1) * 16)
-		for y in 0..<(h - 1) {
-			for x in 0..<(w - 1) {
+		for y in 0 ..< (h - 1) {
+			for x in 0 ..< (w - 1) {
 				let c00: SIMD4<Float> = color(x, y)
 				let c10: SIMD4<Float> = color(x + 1, y)
 				let c01: SIMD4<Float> = color(x, y + 1)
 				let c11: SIMD4<Float> = color(x + 1, y + 1)
 				var net: [SIMD4<Float>] = []
 				net.reserveCapacity(16)
-				for j in 0..<4 {
+				for j in 0 ..< 4 {
 					let v: Float = Float(j) / 3
-					for i in 0..<4 {
+					for i in 0 ..< 4 {
 						let u: Float = Float(i) / 3
 						net.append(self.mix(self.mix(c00, c10, u), self.mix(c01, c11, u), v))
 					}
@@ -133,15 +135,16 @@ enum MeshGeometry {
 
 	static func patchData(_ mesh: Snapshot, colorNets: [SIMD4<Float>]? = nil) -> [SIMD4<Float>] {
 		let colors = colorNets ?? self.colorCoefficients(mesh)
-		let w = mesh.size.width, h = mesh.size.height
+		let w = mesh.size.width
+		let h = mesh.size.height
 		var result: [SIMD4<Float>] = []
 		result.reserveCapacity((w - 1) * (h - 1) * 32)
 		var colorOffset = 0
-		for y in 0..<(h - 1) {
-			for x in 0..<(w - 1) {
+		for y in 0 ..< (h - 1) {
+			for x in 0 ..< (w - 1) {
 				let a = y * w + x
 				result.append(contentsOf: self.positionNet(mesh.vertices[a], mesh.vertices[a + 1], mesh.vertices[a + w], mesh.vertices[a + w + 1]))
-				result.append(contentsOf: colors[colorOffset..<(colorOffset + 16)])
+				result.append(contentsOf: colors[colorOffset ..< (colorOffset + 16)])
 				colorOffset += 16
 			}
 		}
@@ -149,11 +152,12 @@ enum MeshGeometry {
 	}
 
 	static func positionPatchData(_ mesh: Snapshot) -> [SIMD4<Float>] {
-		let w = mesh.size.width, h = mesh.size.height
+		let w = mesh.size.width
+		let h = mesh.size.height
 		var result: [SIMD4<Float>] = []
 		result.reserveCapacity((w - 1) * (h - 1) * 16)
-		for y in 0..<(h - 1) {
-			for x in 0..<(w - 1) {
+		for y in 0 ..< (h - 1) {
+			for x in 0 ..< (w - 1) {
 				let a = y * w + x
 				result.append(contentsOf: self.positionNet(mesh.vertices[a], mesh.vertices[a + 1], mesh.vertices[a + w], mesh.vertices[a + w + 1]))
 			}
@@ -172,16 +176,18 @@ enum MeshGeometry {
 	static func fragmentColorCoefficients(_ mesh: Snapshot) -> FragmentColors {
 		let coefficients = self.colorCoefficients(mesh)
 		#if arch(arm64)
-		// Alpha division and perceptual conversion can amplify quantization. Retain
-		// full precision for those modes and values outside half's finite range.
-		guard mesh.colorSpace == .device, mesh.colors.allSatisfy({ $0.w == 1 }) else { return .float(coefficients) }
-		let packed = coefficients.map({ SIMD4<UInt16>(Float16($0.x).bitPattern, Float16($0.y).bitPattern, Float16($0.z).bitPattern, Float16($0.w).bitPattern) })
-		guard packed.allSatisfy({ ($0.x & 0x7c00) != 0x7c00 && ($0.y & 0x7c00) != 0x7c00 && ($0.z & 0x7c00) != 0x7c00 && ($0.w & 0x7c00) != 0x7c00 }) else { return .float(coefficients) }
-		return .half(packed)
+			// Alpha division and perceptual conversion can amplify quantization. Retain
+			// full precision for those modes and values outside half's finite range.
+			guard mesh.colorSpace == .device, mesh.colors.allSatisfy({ $0.w == 1 }) else { return .float(coefficients) }
+
+			let packed = coefficients.map({ SIMD4<UInt16>(Float16($0.x).bitPattern, Float16($0.y).bitPattern, Float16($0.z).bitPattern, Float16($0.w).bitPattern) })
+			guard packed.allSatisfy({ ($0.x & 0x7c00) != 0x7c00 && ($0.y & 0x7c00) != 0x7c00 && ($0.z & 0x7c00) != 0x7c00 && ($0.w & 0x7c00) != 0x7c00 }) else { return .float(coefficients) }
+
+			return .half(packed)
 		#else
-		// Swift's Float16 conversion is unavailable on Intel Catalyst. The Metal
-		// float specialization uses the same surface and full color precision.
-		return .float(coefficients)
+			// Swift's Float16 conversion is unavailable on Intel Catalyst. The Metal
+			// float specialization uses the same surface and full color precision.
+			return .float(coefficients)
 		#endif
 	}
 
@@ -194,9 +200,11 @@ enum MeshGeometry {
 			simd_float4x4(columns: (a, 3 * (b - a), 3 * (c - 2 * b + a), d - 3 * c + 3 * b - a))
 		}
 		for base in stride(from: 0, to: result.count, by: 16) {
-			for x in 0..<4 {
+			for x in 0 ..< 4 {
 				let column = cubic(result[base + x], result[base + 4 + x], result[base + 8 + x], result[base + 12 + x])
-				for y in 0..<4 { result[base + y * 4 + x] = column[y] }
+				for y in 0 ..< 4 {
+					result[base + y * 4 + x] = column[y]
+				}
 			}
 		}
 		return result
@@ -214,24 +222,36 @@ enum MeshGeometry {
 				let p = patches[base + y * 4 + x]
 				return SIMD2<Float>(p.x, p.y) * pixels
 			}
-			var uu: Float = 0, vv: Float = 0, uv: Float = 0
-			for y in 0..<4 {
-				for x in 0..<2 { uu = max(uu, simd_length_squared(point(x + 2, y) - 2 * point(x + 1, y) + point(x, y))) }
+			var uu: Float = 0
+			var vv: Float = 0
+			var uv: Float = 0
+			for y in 0 ..< 4 {
+				for x in 0 ..< 2 {
+					uu = max(uu, simd_length_squared(point(x + 2, y) - 2 * point(x + 1, y) + point(x, y)))
+				}
 			}
-			for x in 0..<4 {
-				for y in 0..<2 { vv = max(vv, simd_length_squared(point(x, y + 2) - 2 * point(x, y + 1) + point(x, y))) }
+			for x in 0 ..< 4 {
+				for y in 0 ..< 2 {
+					vv = max(vv, simd_length_squared(point(x, y + 2) - 2 * point(x, y + 1) + point(x, y)))
+				}
 			}
-			for y in 0..<3 {
-				for x in 0..<3 { uv = max(uv, simd_length_squared(point(x + 1, y + 1) - point(x + 1, y) - point(x, y + 1) + point(x, y))) }
+			for y in 0 ..< 3 {
+				for x in 0 ..< 3 {
+					uv = max(uv, simd_length_squared(point(x + 1, y + 1) - point(x + 1, y) - point(x, y + 1) + point(x, y)))
+				}
 			}
 			// Only three square roots per patch; comparisons use squared lengths.
 			maximumBound = max(maximumBound, (6 * sqrt(uu) + 6 * sqrt(vv) + 18 * sqrt(uv)) / 8)
 		}
 		let tolerance = mesh.maximumGeometryError.isFinite ? min(8, max(0.05, mesh.maximumGeometryError)) : 0.5
 		var count = 1
-		while count < 128 && maximumBound > tolerance * Float(count * count) { count *= 2 }
+		while count < 128, maximumBound > tolerance * Float(count * count) {
+			count *= 2
+		}
 		let patchesCount = patches.count / positionStride
-		while count > 1 && patchesCount * count * count > 65_536 { count /= 2 }
+		while count > 1, patchesCount * count * count > 65_536 {
+			count /= 2
+		}
 		return count
 	}
 
@@ -243,7 +263,11 @@ enum MeshGeometry {
 		let bu: [Float] = weights(u)
 		let bv: [Float] = weights(v)
 		var result: SIMD4<Float> = .zero
-		for y in 0..<4 { for x in 0..<4 { result += net[y * 4 + x] * bu[x] * bv[y] } }
+		for y in 0 ..< 4 {
+			for x in 0 ..< 4 {
+				result += net[y * 4 + x] * bu[x] * bv[y]
+			}
+		}
 		return result
 	}
 
@@ -253,12 +277,14 @@ enum MeshGeometry {
 
 	static func rgba(_ color: CGColor) -> SIMD4<Float> {
 		guard let converted: CGColor = color.converted(to: self.resolvedColorSpace, intent: .relativeColorimetric, options: nil),
-			let c: [CGFloat] = converted.components, c.count >= 4 else { return .zero }
+		      let c: [CGFloat] = converted.components, c.count >= 4 else { return .zero }
+
 		return SIMD4<Float>(Float(c[0]), Float(c[1]), Float(c[2]), Float(c[3]))
 	}
 
 	static func interpolationColor(_ c: SIMD4<Float>, space: KHMeshGradientView.ColorSpace) -> SIMD4<Float> {
 		guard space != .device else { return c }
+
 		func linear(_ v: Float) -> Float { v <= 0.04045 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4) }
 		let rgb: SIMD3<Float> = SIMD3<Float>(linear(c.x), linear(c.y), linear(c.z))
 		if space == .linear { return SIMD4<Float>(rgb.x, rgb.y, rgb.z, c.w) }

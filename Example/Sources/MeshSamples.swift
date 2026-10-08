@@ -24,7 +24,7 @@ struct MeshSample {
 	}
 
 	static func grid(_ width: Int, _ height: Int) -> [CGPoint] {
-		(0..<(width * height)).map({ CGPoint(x: CGFloat($0 % width) / CGFloat(width - 1), y: CGFloat($0 / width) / CGFloat(height - 1)) })
+		(0 ..< (width * height)).map({ CGPoint(x: CGFloat($0 % width) / CGFloat(width - 1), y: CGFloat($0 / width) / CGFloat(height - 1)) })
 	}
 
 	static var all: [MeshSample] {
@@ -57,13 +57,13 @@ struct MeshSample {
 			MeshSample(id: "rainbow", title: "Rainbow", detail: "3 × 3 · regular grid · smooth", size: .init(width: 3, height: 3), points: grid3, colors: rainbow),
 			MeshSample(id: "warped", title: "Moved center", detail: "3 × 3 · center at (0.72, 0.28)", size: .init(width: 3, height: 3), points: warped, colors: rainbow),
 			MeshSample(id: "organic", title: "Organic", detail: "4 × 4 · irregular interior points", size: .init(width: 4, height: 4), points: curved,
-				colors: [purple, indigo, purple, yellow, pink, purple, pink, yellow, orange, pink, yellow, orange, yellow, orange, pink, purple]),
+			           colors: [purple, indigo, purple, yellow, pink, purple, pink, yellow, orange, pink, yellow, orange, yellow, orange, pink, purple]),
 			MeshSample(id: "bezier", title: "Explicit Bézier handles", detail: "2 × 2 · stretched orange corner", size: .init(width: 2, height: 2), points: grid2, bezierPoints: handles, colors: corners),
 			MeshSample(id: "linear-colors", title: "Unsmoothed colors", detail: "3 × 3 · smoothsColors = false", size: .init(width: 3, height: 3), points: grid3, colors: rainbow, smoothsColors: false),
 			MeshSample(id: "background", title: "Outside the mesh", detail: "Inset corner · indigo background fill", size: .init(width: 2, height: 2),
-				points: [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: 0.8, y: 0.9)], colors: corners, background: indigo),
+			           points: [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: 0.8, y: 0.9)], colors: corners, background: indigo),
 			MeshSample(id: "opacity", title: "Transparency", detail: "Per-vertex alpha · clear background", size: .init(width: 2, height: 2), points: grid2,
-				colors: [purple.withAlphaComponent(0.6), mint.withAlphaComponent(0.7), orange.withAlphaComponent(0.5), blue.withAlphaComponent(0.8)]),
+			           colors: [purple.withAlphaComponent(0.6), mint.withAlphaComponent(0.7), orange.withAlphaComponent(0.5), blue.withAlphaComponent(0.8)]),
 			MeshSample(id: "perceptual", title: "Perceptual color space", detail: "Oklab vs Apple's perceptual interpolation", size: .init(width: 2, height: 2), points: grid2, colors: corners, colorSpace: .perceptual),
 		]
 	}

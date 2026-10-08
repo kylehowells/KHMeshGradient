@@ -1,0 +1,89 @@
+# SwiftFormat configuration
+
+# Disable all rules by default
+--disable all
+
+# Swift version for syntax compatibility
+--swiftversion 5.9
+
+# Require explicit self
+--enable redundantSelf
+--self insert
+
+# Never use trailing closures - disable the rule that adds them
+--disable trailingClosures
+
+# Else on next line
+--enable elseOnSameLine
+--else-position next-line
+--guard-else auto
+
+# Space inside empty braces
+--enable emptyBraces
+--empty-braces spaced
+
+--enable acronyms
+--acronyms
+
+--enable andOperator, anyObjectProtocol, assertionFailures, blankLineAfterImports,
+
+--enable blankLineAfterSwitchCase
+--blank-line-after-switch-case always
+
+--enable blankLinesAfterGuardStatements
+--line-between-guards "true"
+
+--enable blankLinesAroundMark
+--line-after-marks true
+
+--enable blankLinesAtStartOfScope, blankLinesAtEndOfScope
+--type-blank-lines preserve
+--type-blank-lines preserve
+
+--enable blankLinesBetweenChainedFunctions, blankLinesBetweenImports, blankLinesBetweenScopes, consecutiveBlankLines, consecutiveSpaces, consistentSwitchCaseSpacing, docComments, docCommentsBeforeModifiers, duplicateImports, emptyExtensions, enumNamespaces, extensionAccessControl, headerFileName, hoistAwait, hoistPatternLet, hoistTry
+
+--enable indent
+--indent tab
+--tab-width 4
+--smart-tabs enabled
+--indent-case true
+--indent-strings false
+
+--enable initCoderUnavailable, leadingDelimiters
+
+--enable markTypes
+--mark-types always
+
+--enable modifiersOnSameLine, preferForLoop
+
+--enable redundantNilInit
+--nil-init remove
+
+# Type annotations are preserved wherever they are written, and a constructor
+# call is left spelled out.
+#
+# redundantType considers `let total: Int = Int(a)` redundant and removes one
+# half of it. Its three modes are: `inferred` (drop the annotation, giving
+# `let total = Int(a)`), `explicit` (keep the annotation, rewrite the value as
+# `.init(a)`), and `infer-locals-only` (mix of the two by scope). None keeps
+# both, because keeping both is the thing it exists to prevent.
+#
+# The house style wants both: the annotation documents the type, and `Int(a)`
+# names what is being constructed where a bare `.init(a)` does not. So the rule
+# is off rather than configured. Nothing removes an annotation, and nothing
+# rewrites a constructor.
+#
+# This permits `.init(a)` as well as `Int(a)` -- disabling a rule cannot enforce
+# the opposite of what it enforced. Prefer the named form in new code.
+--disable redundantType, propertyTypes
+
+--enable singlePropertyPerLine, spaceAroundBrackets, spaceAroundOperators, spaceAroundParens, spaceInsideComments, todos
+
+
+--enable trailingCommas
+--trailing-commas collections-only
+
+--enable trailingSpace
+--trim-whitespace nonblank-lines
+
+--enable void, wrapEnumCases, wrapLoopBodies, wrapMultilineFunctionChains, wrapMultilineStatementBraces

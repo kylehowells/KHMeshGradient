@@ -2,6 +2,8 @@ import KHMeshGradient
 import SwiftUI
 import UIKit
 
+// MARK: - GalleryViewController
+
 final class GalleryViewController: UIViewController {
 	private var cards: [MeshCardViewController] = []
 	override func loadView() { self.view = GalleryView() }
@@ -25,18 +27,33 @@ final class GalleryViewController: UIViewController {
 		self._view.geometryControl.addTarget(self, action: #selector(self.geometryChanged), for: .valueChanged)
 	}
 
-	@objc private func animateMesh() { for card in self.cards { card.animateMesh() } }
-	@objc private func scrubChanged() { for card in self.cards { card.scrub(to: CGFloat(self._view.scrubSlider.value)) } }
-	@objc private func resumeMeshes() { for card in self.cards { card.resume() } }
-	@objc private func resetMeshes() { for card in self.cards { card.reset() } }
+	@objc private func animateMesh() { for card in self.cards {
+		card.animateMesh()
+	} }
+	@objc private func scrubChanged() { for card in self.cards {
+		card.scrub(to: CGFloat(self._view.scrubSlider.value))
+	} }
+	@objc private func resumeMeshes() { for card in self.cards {
+		card.resume()
+	} }
+	@objc private func resetMeshes() { for card in self.cards {
+		card.reset()
+	} }
 	@objc private func debugChanged() {
 		let modes: [KHMeshGradientView.DebugMode] = [.none, .mesh, .controlPoints, .tessellation]
-		for card in self.cards { card._view.gradient.debugMode = modes[self._view.debugControl.selectedSegmentIndex] }
+		for card in self.cards {
+			card._view.gradient.debugMode = modes[self._view.debugControl.selectedSegmentIndex]
+		}
 	}
+
 	@objc private func geometryChanged() {
-		for card in self.cards { card._view.gradient.subdivisions = self._view.geometryControl.selectedSegmentIndex == 0 ? 0 : 48 }
+		for card in self.cards {
+			card._view.gradient.subdivisions = self._view.geometryControl.selectedSegmentIndex == 0 ? 0 : 48
+		}
 	}
 }
+
+// MARK: - GalleryView
 
 final class GalleryView: UIView {
 	let heading: UILabel = {
@@ -45,6 +62,7 @@ final class GalleryView: UIView {
 		label.font = .systemFont(ofSize: 30, weight: .bold)
 		return label
 	}()
+
 	let subtitle: UILabel = {
 		let label: UILabel = UILabel()
 		label.text = "UIKit + Metal and SwiftUI · identical inputs"
@@ -52,6 +70,7 @@ final class GalleryView: UIView {
 		label.textColor = .secondaryLabel
 		return label
 	}()
+
 	let animateButton: UIButton = {
 		let button: UIButton = UIButton(type: .system)
 		button.setTitle("Animate", for: .normal)
@@ -59,23 +78,27 @@ final class GalleryView: UIView {
 		button.accessibilityIdentifier = "animateMesh"
 		return button
 	}()
+
 	let resetButton: UIButton = {
 		let button: UIButton = UIButton(type: .system)
 		button.setTitle("Reset", for: .normal)
 		return button
 	}()
+
 	let scrubLabel: UILabel = {
 		let label = UILabel()
 		label.text = "Scrub UIKit"
 		label.font = .systemFont(ofSize: 13)
 		return label
 	}()
+
 	let scrubSlider: UISlider = UISlider()
 	let resumeButton: UIButton = {
 		let button = UIButton(type: .system)
 		button.setTitle("Resume", for: .normal)
 		return button
 	}()
+
 	let debugControl: UISegmentedControl = UISegmentedControl(items: ["Gradient", "Mesh", "Handles", "Grid"])
 	let geometryControl: UISegmentedControl = UISegmentedControl(items: ["Adaptive geometry", "Fixed 48"])
 	let scrollView: UIScrollView = UIScrollView()
@@ -84,10 +107,13 @@ final class GalleryView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.backgroundColor = .systemGroupedBackground
-		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.geometryControl, self.scrubLabel, self.scrubSlider, self.resumeButton, self.scrollView] { self.addSubview(view) }
+		for view in [self.heading, self.subtitle, self.animateButton, self.resetButton, self.debugControl, self.geometryControl, self.scrubLabel, self.scrubSlider, self.resumeButton, self.scrollView] {
+			self.addSubview(view)
+		}
 		self.debugControl.selectedSegmentIndex = 0
 		self.geometryControl.selectedSegmentIndex = 0
 	}
+
 	@available(*, unavailable)
 	required init?(coder: NSCoder) { fatalError() }
 
@@ -115,6 +141,8 @@ final class GalleryView: UIView {
 		self.scrollView.contentSize = CGSize(width: width, height: y + self.safeAreaInsets.bottom)
 	}
 }
+
+// MARK: - MeshCardViewController
 
 final class MeshCardViewController: UIViewController {
 	private let original: MeshSample
@@ -181,6 +209,7 @@ final class MeshCardViewController: UIViewController {
 			else { target.colors[0] = .systemPink }
 			let animator = UIViewPropertyAnimator(duration: 2, curve: .easeInOut, animations: { [weak self] in
 				guard let self = self else { return }
+
 				target.apply(to: self._view.gradient)
 			})
 			self.propertyAnimator = animator
@@ -192,6 +221,7 @@ final class MeshCardViewController: UIViewController {
 
 	func resume() {
 		guard let animator = self.propertyAnimator, animator.state == .active, !animator.isRunning else { return }
+
 		animator.continueAnimation(withTimingParameters: nil, durationFactor: 1)
 	}
 
@@ -204,6 +234,8 @@ final class MeshCardViewController: UIViewController {
 		self.state.sample = self.original
 	}
 }
+
+// MARK: - MeshCardView
 
 final class MeshCardView: UIView {
 	let gradient: KHMeshGradientView = KHMeshGradientView()
@@ -223,14 +255,19 @@ final class MeshCardView: UIView {
 		self.detailLabel.textColor = .secondaryLabel
 		self.oursLabel.text = "KHMeshGradientView"
 		self.referenceLabel.text = "SwiftUI MeshGradient"
-		for label in [self.oursLabel, self.referenceLabel] { label.font = .systemFont(ofSize: 11, weight: .medium); label.textColor = .secondaryLabel }
-		for view in [self.titleLabel, self.detailLabel, self.oursLabel, self.referenceLabel, self.gradient, self.referenceContainer] { self.addSubview(view) }
+		for label in [self.oursLabel, self.referenceLabel] {
+			label.font = .systemFont(ofSize: 11, weight: .medium); label.textColor = .secondaryLabel
+		}
+		for view in [self.titleLabel, self.detailLabel, self.oursLabel, self.referenceLabel, self.gradient, self.referenceContainer] {
+			self.addSubview(view)
+		}
 		for view in [self.gradient, self.referenceContainer] {
 			view.backgroundColor = .white
 			view.layer.cornerRadius = 8
 			view.clipsToBounds = true
 		}
 	}
+
 	@available(*, unavailable)
 	required init?(coder: NSCoder) { fatalError() }
 
@@ -249,13 +286,14 @@ final class MeshCardView: UIView {
 }
 
 #if DEBUG
-private struct GalleryPreview: UIViewControllerRepresentable {
-	func makeUIViewController(context: Context) -> GalleryViewController { GalleryViewController() }
-	func updateUIViewController(_ uiViewController: GalleryViewController, context: Context) {
-		uiViewController.view.setNeedsLayout(); uiViewController.view.layoutIfNeeded()
+	private struct GalleryPreview: UIViewControllerRepresentable {
+		func makeUIViewController(context: Context) -> GalleryViewController { GalleryViewController() }
+		func updateUIViewController(_ uiViewController: GalleryViewController, context: Context) {
+			uiViewController.view.setNeedsLayout(); uiViewController.view.layoutIfNeeded()
+		}
 	}
-}
-private struct GalleryPreviewProvider: PreviewProvider {
-	static var previews: some View { GalleryPreview().ignoresSafeArea().previewDisplayName("Mesh comparison gallery") }
-}
+
+	private struct GalleryPreviewProvider: PreviewProvider {
+		static var previews: some View { GalleryPreview().ignoresSafeArea().previewDisplayName("Mesh comparison gallery") }
+	}
 #endif

@@ -1,6 +1,8 @@
 import KHMeshGradient
 import SwiftUI
 
+// MARK: - SwiftUIMesh
+
 @available(iOS 18.0, *)
 struct SwiftUIMesh: View {
 	var sample: MeshSample
@@ -17,17 +19,22 @@ struct SwiftUIMesh: View {
 		}
 		else { locations = .points(self.sample.points.map(Self.vector)) }
 		return MeshGradient(width: self.sample.size.width, height: self.sample.size.height,
-			locations: locations, colors: .colors(self.sample.colors.map({ Color(uiColor: $0) })),
-			background: Color(uiColor: self.sample.background), smoothsColors: self.sample.smoothsColors,
-			colorSpace: self.sample.colorSpace == .perceptual ? .perceptual : .device)
+		                    locations: locations, colors: .colors(self.sample.colors.map({ Color(uiColor: $0) })),
+		                    background: Color(uiColor: self.sample.background), smoothsColors: self.sample.smoothsColors,
+		                    colorSpace: self.sample.colorSpace == .perceptual ? .perceptual : .device)
 	}
+
 	private static func vector(_ p: CGPoint) -> SIMD2<Float> { SIMD2<Float>(Float(p.x), Float(p.y)) }
 }
+
+// MARK: - MeshSampleState
 
 final class MeshSampleState: ObservableObject {
 	@Published var sample: MeshSample
 	init(sample: MeshSample) { self.sample = sample }
 }
+
+// MARK: - ObservedSwiftUIMesh
 
 @available(iOS 18.0, *)
 struct ObservedSwiftUIMesh: View {

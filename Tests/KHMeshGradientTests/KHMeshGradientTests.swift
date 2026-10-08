@@ -15,13 +15,18 @@ final class KHMeshGradientTests: XCTestCase {
 		for (x, y) in [(7, 13), (19, 39), (43, 8), (55, 51)] {
 			let expected = MeshGeometry.evaluate(controls, u: Float(x) / 64 + 0.5 / 64, v: Float(y) / 64 + 0.5 / 64)
 			let pixel = self.rgba(image, x: x, y: y)
-			for channel in 0..<3 { XCTAssertEqual(Float(pixel[channel]), expected[channel] * 255, accuracy: 1) }
+			for channel in 0 ..< 3 {
+				XCTAssertEqual(Float(pixel[channel]), expected[channel] * 255, accuracy: 1)
+			}
 		}
 		view.subdivisions = 128
 		let dense = try view.renderedImage(size: CGSize(width: 64, height: 64))
 		for (x, y) in [(7, 13), (19, 39), (43, 8), (55, 51)] {
-			let low = self.rgba(image, x: x, y: y), high = self.rgba(dense, x: x, y: y)
-			for channel in 0..<4 { XCTAssertEqual(Int(low[channel]), Int(high[channel]), accuracy: 1) }
+			let low = self.rgba(image, x: x, y: y)
+			let high = self.rgba(dense, x: x, y: y)
+			for channel in 0 ..< 4 {
+				XCTAssertEqual(Int(low[channel]), Int(high[channel]), accuracy: 1)
+			}
 		}
 	}
 
@@ -37,8 +42,11 @@ final class KHMeshGradientTests: XCTestCase {
 				view.subdivisions = 128
 				let fine = try view.renderedImage(size: CGSize(width: 48, height: 32))
 				for (x, y) in [(5, 7), (18, 23), (35, 12)] {
-					let a = self.rgba(coarse, x: x, y: y), b = self.rgba(fine, x: x, y: y)
-					for channel in 0..<4 { XCTAssertEqual(Int(a[channel]), Int(b[channel]), accuracy: 1, "\(space), smooth=\(smooth)") }
+					let a = self.rgba(coarse, x: x, y: y)
+					let b = self.rgba(fine, x: x, y: y)
+					for channel in 0 ..< 4 {
+						XCTAssertEqual(Int(a[channel]), Int(b[channel]), accuracy: 1, "\(space), smooth=\(smooth)")
+					}
 				}
 			}
 		}
@@ -76,9 +84,9 @@ final class KHMeshGradientTests: XCTestCase {
 			return MeshGeometry.fragmentColorCoefficients(mesh).usesHalf
 		}
 		#if arch(arm64)
-		XCTAssertTrue(try usesHalf())
+			XCTAssertTrue(try usesHalf())
 		#else
-		XCTAssertFalse(try usesHalf())
+			XCTAssertFalse(try usesHalf())
 		#endif
 		view.colors[0] = .red.withAlphaComponent(0.3)
 		XCTAssertFalse(try usesHalf())
@@ -89,7 +97,7 @@ final class KHMeshGradientTests: XCTestCase {
 		let color = try XCTUnwrap(CGColor(colorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB)!, components: [1_000_000, 0, 0, 1]))
 		view.resolvedColors = Array(repeating: color, count: 4)
 		XCTAssertFalse(try usesHalf(), "Coefficients outside half's finite range use the float pipeline.")
-		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
+		let pixel = try self.rgba(view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
 		XCTAssertEqual(pixel, [255, 0, 0, 255])
 	}
 
@@ -112,7 +120,7 @@ final class KHMeshGradientTests: XCTestCase {
 		let mesh = try XCTUnwrap((view.layer as! KHMeshGradientLayer).snapshot())
 		XCTAssertGreaterThan(MeshGeometry.subdivisionCount(mesh, patches: MeshGeometry.patchData(mesh), pixels: SIMD2<Float>(720, 480)), 1)
 		view.meshSize = .init(width: 64, height: 64)
-		view.points = (0..<4096).map({ index -> CGPoint in
+		view.points = (0 ..< 4096).map({ index -> CGPoint in
 			let x: CGFloat = CGFloat(index % 64) / 63
 			let y: CGFloat = CGFloat(index / 64) / 63
 			let offset: CGFloat = index % 2 == 0 ? 0.5 : 0
@@ -134,15 +142,17 @@ final class KHMeshGradientTests: XCTestCase {
 		let pixels = SIMD2<Float>(720, 480)
 		let n = MeshGeometry.subdivisionCount(mesh, patches: net, pixels: pixels, positionStride: 16)
 		XCTAssertLessThan(n, 128, "This fixture must exercise the error target without hitting the density cap.")
-		for sample in 0..<300 {
+		for sample in 0 ..< 300 {
 			let u: Float = Float((sample * 37) % 997) / 997
 			let v: Float = Float((sample * 61) % 991) / 991
-			let x = floor(u * Float(n)), y = floor(v * Float(n))
+			let x = floor(u * Float(n))
+			let y = floor(v * Float(n))
 			let a = MeshGeometry.evaluate(net, u: x / Float(n), v: y / Float(n))
 			let b = MeshGeometry.evaluate(net, u: (x + 1) / Float(n), v: y / Float(n))
 			let c = MeshGeometry.evaluate(net, u: x / Float(n), v: (y + 1) / Float(n))
 			let d = MeshGeometry.evaluate(net, u: (x + 1) / Float(n), v: (y + 1) / Float(n))
-			let fu = u * Float(n) - x, fv = v * Float(n) - y
+			let fu = u * Float(n) - x
+			let fv = v * Float(n) - y
 			let linear = fu + fv <= 1 ? a * (1 - fu - fv) + b * fu + c * fv : b * (1 - fv) + d * (fu + fv - 1) + c * (1 - fu)
 			let exact = MeshGeometry.evaluate(net, u: u, v: v)
 			let difference = SIMD2<Float>(linear.x - exact.x, linear.y - exact.y) * pixels
@@ -220,6 +230,7 @@ final class KHMeshGradientTests: XCTestCase {
 		self.pump(0.2)
 		XCTAssertEqual(view.renderedFrameCount, settled)
 	}
+
 	@MainActor func testPropertyAnimatorFinishStartRestoresModelAndMetalPixels() throws {
 		let view = try self.makeView()
 		view.colors = Array(repeating: .red, count: 4)
@@ -235,7 +246,7 @@ final class KHMeshGradientTests: XCTestCase {
 		animator.pauseAnimation()
 		animator.fractionComplete = 0.25
 		self.pump(0.1)
-		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16), usesPresentationValues: true), x: 8, y: 8)
+		let pixel = try self.rgba(view.renderedImage(size: CGSize(width: 16, height: 16), usesPresentationValues: true), x: 8, y: 8)
 		XCTAssertEqual(Int(pixel[0]), 191, accuracy: 3)
 		XCTAssertEqual(Int(pixel[2]), 64, accuracy: 3)
 		animator.stopAnimation(false)
@@ -244,7 +255,7 @@ final class KHMeshGradientTests: XCTestCase {
 		XCTAssertEqual(view.points[0], .zero)
 		XCTAssertEqual(view.alpha, 1)
 		XCTAssertEqual(view.colors[0].cgColor, UIColor.red.cgColor)
-		let restored = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
+		let restored = try self.rgba(view.renderedImage(size: CGSize(width: 16, height: 16)), x: 8, y: 8)
 		XCTAssertGreaterThan(restored[0], 250)
 		XCTAssertLessThan(restored[2], 5)
 		// A subsequent unrelated setter must not put the cancelled target back.
@@ -338,13 +349,13 @@ final class KHMeshGradientTests: XCTestCase {
 		XCTAssertEqual(view.colors[0].resolvedColor(with: UITraitCollection(userInterfaceStyle: .dark)).cgColor, UIColor.green.cgColor)
 		view.overrideUserInterfaceStyle = .dark
 		self.pump(0.1)
-		let pixel = self.rgba(try view.renderedImage(size: CGSize(width: 16, height: 16)), x: 0, y: 0)
+		let pixel = try self.rgba(view.renderedImage(size: CGSize(width: 16, height: 16)), x: 0, y: 0)
 		XCTAssertGreaterThan(pixel[1], 250)
 	}
 
 	@MainActor func testDistinctViewsBatchTogetherAndStopAtIdle() throws {
 		let container = UIView(frame: CGRect(x: 0, y: 0, width: 256, height: 256))
-		let views = try (0..<4).map({ index -> KHMeshGradientView in
+		let views = try (0 ..< 4).map({ index -> KHMeshGradientView in
 			let view = try self.makeView()
 			view.frame.origin = CGPoint(x: (index % 2) * 128, y: (index / 2) * 128)
 			container.addSubview(view)
@@ -378,7 +389,7 @@ final class KHMeshGradientTests: XCTestCase {
 
 	@MainActor func testBatchPixelsMatchIndependentRendersAndDoNotBleed() throws {
 		let renderer = try MeshRenderer.shared.get()
-		let views = try (0..<9).map({ index -> KHMeshGradientView in
+		let views = try (0 ..< 9).map({ index -> KHMeshGradientView in
 			let view = try self.makeView()
 			view.points[3] = CGPoint(x: 0.6, y: 0.7)
 			view.meshBackgroundColor = UIColor(hue: CGFloat(index) / 9, saturation: 1, brightness: 1, alpha: 0.6)
@@ -418,7 +429,7 @@ final class KHMeshGradientTests: XCTestCase {
 
 	@MainActor func testMultipleAnimatedViewsCoalesceAndScrubTogether() throws {
 		let container = UIView(frame: CGRect(x: 0, y: 0, width: 256, height: 256))
-		let views = try (0..<4).map({ index -> KHMeshGradientView in
+		let views = try (0 ..< 4).map({ index -> KHMeshGradientView in
 			let view = try self.makeView()
 			view.frame.origin = CGPoint(x: (index % 2) * 128, y: (index / 2) * 128)
 			container.addSubview(view)
@@ -427,9 +438,13 @@ final class KHMeshGradientTests: XCTestCase {
 		let window = self.attach(container)
 		defer { window.isHidden = true }
 		self.pump(0.2)
-		for view in views { view.resetRenderingStatistics(); view.collectsRenderingStatistics = true }
+		for view in views {
+			view.resetRenderingStatistics(); view.collectsRenderingStatistics = true
+		}
 		let animator = UIViewPropertyAnimator(duration: 1, curve: .linear, animations: {
-			for view in views { view.points[0] = CGPoint(x: 0.4, y: 0.2) }
+			for view in views {
+				view.points[0] = CGPoint(x: 0.4, y: 0.2)
+			}
 		})
 		animator.startAnimation()
 		self.pump(0.2)
@@ -444,7 +459,9 @@ final class KHMeshGradientTests: XCTestCase {
 		let before = renderer.submittedBatchCount
 		animator.fractionComplete = 0.75
 		self.pump(0.1)
-		for view in views { XCTAssertEqual(view.presentationPoints[0].x, 0.3, accuracy: 0.01) }
+		for view in views {
+			XCTAssertEqual(view.presentationPoints[0].x, 0.3, accuracy: 0.01)
+		}
 		XCTAssertEqual(renderer.submittedBatchCount, before + 1)
 		let paused = renderer.submittedBatchCount
 		self.pump(0.2)
@@ -455,6 +472,7 @@ final class KHMeshGradientTests: XCTestCase {
 
 	@MainActor private func makeView() throws -> KHMeshGradientView {
 		guard MTLCreateSystemDefaultDevice() != nil else { throw XCTSkip("Metal is unavailable.") }
+
 		let view: KHMeshGradientView = KHMeshGradientView(frame: CGRect(x: 0, y: 0, width: 128, height: 128))
 		view.colors = [.red, .green, .blue, .white]
 		if let error: Error = view.renderingError { XCTFail("Renderer initialization failed: \(error)") }
@@ -482,11 +500,11 @@ final class KHMeshGradientTests: XCTestCase {
 		let cgImage: CGImage = image.cgImage!
 		var bytes: [UInt8] = [UInt8](repeating: 0, count: cgImage.width * cgImage.height * 4)
 		let context: CGContext = CGContext(data: &bytes, width: cgImage.width, height: cgImage.height,
-			bitsPerComponent: 8, bytesPerRow: cgImage.width * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
-			bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+		                                   bitsPerComponent: 8, bytesPerRow: cgImage.width * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+		                                   bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
 		context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
 		let offset: Int = (y * cgImage.width + x) * 4
-		return Array(bytes[offset..<(offset + 4)])
+		return Array(bytes[offset ..< (offset + 4)])
 	}
 
 	@MainActor func testMetalRenderingPreservesCornerColors() throws {
@@ -517,7 +535,7 @@ final class KHMeshGradientTests: XCTestCase {
 		let view: KHMeshGradientView = try self.makeView()
 		view.points[3] = CGPoint(x: 0.6, y: 0.6)
 		view.meshBackgroundColor = .magenta
-		let pixel: [UInt8] = self.rgba(try view.renderedImage(size: CGSize(width: 32, height: 32)), x: 31, y: 31)
+		let pixel: [UInt8] = try self.rgba(view.renderedImage(size: CGSize(width: 32, height: 32)), x: 31, y: 31)
 		XCTAssertGreaterThan(pixel[0], 250)
 		XCTAssertLessThan(pixel[1], 5)
 		XCTAssertGreaterThan(pixel[2], 250)
@@ -528,7 +546,7 @@ final class KHMeshGradientTests: XCTestCase {
 		view.meshSize = .init(width: 3, height: 3)
 		XCTAssertNotNil(view.configurationError)
 		XCTAssertThrowsError(try view.renderedImage(size: CGSize(width: 16, height: 16)))
-		view.points = (0..<9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
+		view.points = (0 ..< 9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
 		view.colors = Array(repeating: .red, count: 9)
 		XCTAssertNil(view.configurationError)
 		XCTAssertNoThrow(try view.renderedImage(size: CGSize(width: 16, height: 16)))
@@ -541,10 +559,10 @@ final class KHMeshGradientTests: XCTestCase {
 	@MainActor func testColorAndGeometrySourceSwitching() throws {
 		let view: KHMeshGradientView = try self.makeView()
 		view.resolvedColors = Array(repeating: UIColor.blue.cgColor, count: 4)
-		let blue: [UInt8] = self.rgba(try view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
+		let blue: [UInt8] = try self.rgba(view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
 		XCTAssertGreaterThan(blue[2], 250)
 		view.colors = Array(repeating: .red, count: 4)
-		let red: [UInt8] = self.rgba(try view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
+		let red: [UInt8] = try self.rgba(view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
 		XCTAssertGreaterThan(red[0], 250)
 		view.bezierPoints = []
 		XCTAssertNotNil(view.configurationError)
@@ -554,11 +572,11 @@ final class KHMeshGradientTests: XCTestCase {
 	}
 
 	func testAutomaticPatchBoundariesAndCornersAgree() {
-		let points: [CGPoint] = (0..<9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
+		let points: [CGPoint] = (0 ..< 9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
 		let vertices = MeshGeometry.automaticVertices(points: points, size: .init(width: 3, height: 3))
 		let left = MeshGeometry.positionNet(vertices[0], vertices[1], vertices[3], vertices[4])
 		let right = MeshGeometry.positionNet(vertices[1], vertices[2], vertices[4], vertices[5])
-		for step in 0...20 {
+		for step in 0 ... 20 {
 			let v: Float = Float(step) / 20
 			let a = MeshGeometry.evaluate(left, u: 1, v: v)
 			let b = MeshGeometry.evaluate(right, u: 0, v: v)
@@ -584,7 +602,7 @@ final class KHMeshGradientTests: XCTestCase {
 	@MainActor func testUIViewPointAnimationInterpolatesAndStopsDrawing() throws {
 		let view: KHMeshGradientView = try self.makeView()
 		view.meshSize = .init(width: 3, height: 3)
-		view.points = (0..<9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
+		view.points = (0 ..< 9).map({ CGPoint(x: CGFloat($0 % 3) / 2, y: CGFloat($0 / 3) / 2) })
 		view.colors = Array(repeating: .red, count: 9)
 		let window: UIWindow = self.attach(view)
 		defer { window.isHidden = true }
@@ -642,7 +660,7 @@ final class KHMeshGradientTests: XCTestCase {
 		defer { window.isHidden = true }
 		self.pump(0.1)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0,
-			options: [], animations: { view.points[0] = CGPoint(x: -0.2, y: -0.2) }, completion: nil)
+		               options: [], animations: { view.points[0] = CGPoint(x: -0.2, y: -0.2) }, completion: nil)
 		XCTAssertNotNil(view.layer.animation(forKey: "mesh_point_0"))
 		let animation: CASpringAnimation = try XCTUnwrap(view.layer.animation(forKey: "mesh_point_0") as? CASpringAnimation)
 		XCTAssertGreaterThan(animation.stiffness, 0)
@@ -674,11 +692,11 @@ final class KHMeshGradientTests: XCTestCase {
 		view.overrideUserInterfaceStyle = .light
 		self.pump(0.05)
 		view.colors = Array(repeating: color, count: 4)
-		let light: [UInt8] = self.rgba(try view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
+		let light: [UInt8] = try self.rgba(view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
 		view.overrideUserInterfaceStyle = .dark
 		self.pump(0.05)
 		XCTAssertEqual(view.traitCollection.userInterfaceStyle, .dark)
-		let dark: [UInt8] = self.rgba(try view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
+		let dark: [UInt8] = try self.rgba(view.renderedImage(size: CGSize(width: 8, height: 8)), x: 4, y: 4)
 		XCTAssertLessThan(light[0], 5)
 		XCTAssertGreaterThan(dark[0], 250)
 	}
@@ -705,7 +723,7 @@ final class KHMeshGradientTests: XCTestCase {
 		var images: Set<Data> = []
 		for space in [KHMeshGradientView.ColorSpace.device, .perceptual, .linear] {
 			view.colorSpace = space
-			images.insert(try view.renderedImage(size: CGSize(width: 32, height: 32)).pngData()!)
+			try images.insert(view.renderedImage(size: CGSize(width: 32, height: 32)).pngData()!)
 		}
 		XCTAssertEqual(images.count, 3)
 	}

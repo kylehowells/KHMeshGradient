@@ -4,6 +4,8 @@ import SwiftUI
 import UIKit
 import os
 
+// MARK: - MeshBenchmarkConfiguration
+
 struct MeshBenchmarkConfiguration {
 	var renderer: String
 	var count: Int
@@ -21,21 +23,25 @@ struct MeshBenchmarkConfiguration {
 	static func fromArguments() -> Self? {
 		let args: [String] = ProcessInfo.processInfo.arguments
 		guard args.contains("--benchmark") else { return nil }
+
 		func value(_ name: String, _ fallback: String) -> String {
 			guard let index: Int = args.firstIndex(of: name), index + 1 < args.count else { return fallback }
+
 			return args[index + 1]
 		}
 		let name: String = value("--bench-id", UUID().uuidString)
 		let safeName: String = String(name.filter({ $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }))
 		return Self(renderer: value("--benchmark", "kh"), count: min(64, max(1, Int(value("--bench-count", "5")) ?? 5)),
-			sampleID: value("--bench-mesh", "rainbow"), runID: safeName, launchNonce: value("--bench-token", UUID().uuidString), requestedFPS: min(120, max(1, Int(value("--bench-fps", "60")) ?? 60)),
-			activeSeconds: max(2, Double(value("--bench-seconds", "8")) ?? 8), startDelay: max(0, Double(value("--bench-delay", "0")) ?? 0),
-			collectsMetalStatistics: !args.contains("--bench-no-metal-statistics"),
-			cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)),
-			randomSeed: UInt64(value("--bench-random-seed", "")),
-			subdivisions: min(128, max(0, Int(value("--bench-subdivisions", "0")) ?? 0)))
+		            sampleID: value("--bench-mesh", "rainbow"), runID: safeName, launchNonce: value("--bench-token", UUID().uuidString), requestedFPS: min(120, max(1, Int(value("--bench-fps", "60")) ?? 60)),
+		            activeSeconds: max(2, Double(value("--bench-seconds", "8")) ?? 8), startDelay: max(0, Double(value("--bench-delay", "0")) ?? 0),
+		            collectsMetalStatistics: !args.contains("--bench-no-metal-statistics"),
+		            cellSize: CGSize(width: max(32, Double(value("--bench-width", "320")) ?? 320), height: max(32, Double(value("--bench-height", "200")) ?? 200)),
+		            randomSeed: UInt64(value("--bench-random-seed", "")),
+		            subdivisions: min(128, max(0, Int(value("--bench-subdivisions", "0")) ?? 0)))
 	}
 }
+
+// MARK: - ProcessMeasurement
 
 private struct ProcessMeasurement: Codable {
 	var wallTime: Double
@@ -66,6 +72,8 @@ private struct ProcessMeasurement: Codable {
 	}
 }
 
+// MARK: - BenchmarkPhaseReport
+
 private struct BenchmarkPhaseReport: Codable {
 	var name: String
 	var start: ProcessMeasurement
@@ -80,6 +88,8 @@ private struct BenchmarkPhaseReport: Codable {
 	var metalStatistics: [KHMeshGradientView.RenderingStatistics]
 	var metalSubmissions: UInt64
 }
+
+// MARK: - MeshBenchmarkViewController
 
 /// Each process measures one renderer/count/mesh combination, never the gallery.
 /// A single hosting controller contains all SwiftUI meshes, matching normal
@@ -122,6 +132,7 @@ final class MeshBenchmarkViewController: UIViewController {
 		self.fixtures = BenchmarkFixtures(sample: self.sample, count: configuration.count, randomSeed: configuration.randomSeed)
 		super.init(nibName: nil, bundle: nil)
 	}
+
 	@available(*, unavailable)
 	required init?(coder: NSCoder) { fatalError() }
 
@@ -140,6 +151,7 @@ final class MeshBenchmarkViewController: UIViewController {
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		guard !self.hasStarted else { return }
+
 		self.hasStarted = true
 		let link: CADisplayLink = CADisplayLink(target: self, selector: #selector(self.tick(_:)))
 		link.preferredFrameRateRange = CAFrameRateRange(minimum: Float(self.configuration.requestedFPS), maximum: Float(self.configuration.requestedFPS), preferred: Float(self.configuration.requestedFPS))
@@ -155,14 +167,14 @@ final class MeshBenchmarkViewController: UIViewController {
 		let top: CGFloat = self.view.safeAreaInsets.top
 		self.titleLabel.frame = CGRect(x: 16, y: top + 4, width: self.view.bounds.width - 32, height: 52)
 		self.gridContainer.frame = CGRect(x: 16, y: top + 64, width: self.view.bounds.width - 32,
-			height: self.view.bounds.height - top - 80 - self.view.safeAreaInsets.bottom)
+		                                  height: self.view.bounds.height - top - 80 - self.view.safeAreaInsets.bottom)
 		let stride: CGSize = CGSize(width: self.configuration.cellSize.width + 12, height: self.configuration.cellSize.height + 12)
 		let columns: Int = max(1, Int((self.gridContainer.bounds.width + 12) / stride.width))
 		let rows: Int = (self.configuration.count + columns - 1) / columns
 		self.layoutIsValid = CGFloat(rows) * stride.height - 12 <= self.gridContainer.bounds.height && self.gridContainer.bounds.width >= self.configuration.cellSize.width
 		for (index, mesh) in self.metalViews.enumerated() {
 			mesh.frame = CGRect(x: CGFloat(index % columns) * stride.width, y: CGFloat(index / columns) * stride.height,
-				width: self.configuration.cellSize.width, height: self.configuration.cellSize.height)
+			                    width: self.configuration.cellSize.width, height: self.configuration.cellSize.height)
 		}
 		if let host = self.hostingController as? UIHostingController<BenchmarkSwiftUIGrid> {
 			if host.rootView.columns != columns { host.rootView = BenchmarkSwiftUIGrid(states: self.swiftUIStates, columns: columns, cellSize: self.configuration.cellSize) }
@@ -200,10 +212,15 @@ final class MeshBenchmarkViewController: UIViewController {
 	private func duration(_ phase: String) -> Double {
 		switch phase {
 			case "baseline": return 2 + self.configuration.startDelay
+
 			case "warmup": return 2
+
 			case "idle-before", "idle-after": return 3
+
 			case "update-warmup", "settle": return 1
+
 			case "active": return self.configuration.activeSeconds
+
 			default: return 0
 		}
 	}
@@ -237,11 +254,13 @@ final class MeshBenchmarkViewController: UIViewController {
 		let end: ProcessMeasurement = .capture()
 		self.memorySamples.append(end)
 		self.phases.append(BenchmarkPhaseReport(name: self.currentPhase, start: self.phaseStart, end: end,
-			memorySamples: self.memorySamples, callbackIntervalsMS: self.callbackIntervals, deadlineBudgetsMS: self.budgets,
-			setterDurationsMS: self.setters, tickCount: self.tickCount, updateCount: self.updateCount,
-			missedRequestedUpdateSlots: self.missedSlots, metalStatistics: self.metalViews.map({ $0.renderingStatistics }),
-			metalSubmissions: self.metalViews.reduce(0, { $0 + $1.renderedFrameCount }) - self.frameCountAtPhaseStart))
-		for view in self.metalViews { view.collectsRenderingStatistics = false }
+		                                        memorySamples: self.memorySamples, callbackIntervalsMS: self.callbackIntervals, deadlineBudgetsMS: self.budgets,
+		                                        setterDurationsMS: self.setters, tickCount: self.tickCount, updateCount: self.updateCount,
+		                                        missedRequestedUpdateSlots: self.missedSlots, metalStatistics: self.metalViews.map({ $0.renderingStatistics }),
+		                                        metalSubmissions: self.metalViews.reduce(0, { $0 + $1.renderedFrameCount }) - self.frameCountAtPhaseStart))
+		for view in self.metalViews {
+			view.collectsRenderingStatistics = false
+		}
 	}
 
 	@objc private func tick(_ link: CADisplayLink) {
@@ -250,10 +269,15 @@ final class MeshBenchmarkViewController: UIViewController {
 			self.finishPhase()
 			switch self.currentPhase {
 				case "baseline": self.constructViews(); self.beginPhase("warmup")
+
 				case "warmup": self.beginPhase("idle-before")
+
 				case "idle-before": self.beginPhase("update-warmup")
+
 				case "update-warmup": self.beginPhase("active")
+
 				case "active": self.beginPhase("settle")
+
 				case "settle":
 					// Wait one second before sampling active GPU statistics, so in-flight
 					// completions are counted without blocking the measured frame loop.
@@ -261,7 +285,9 @@ final class MeshBenchmarkViewController: UIViewController {
 						self.phases[index].metalStatistics = self.metalViews.map({ $0.renderingStatistics })
 					}
 					self.beginPhase("idle-after")
+
 				case "idle-after": self.complete(); return
+
 				default: return
 			}
 			return
@@ -278,7 +304,7 @@ final class MeshBenchmarkViewController: UIViewController {
 		if self.currentPhase == "active" || self.currentPhase == "update-warmup" {
 			let start: Double = CACurrentMediaTime()
 			let time: Double = link.targetTimestamp - self.animationOrigin
-			for index in 0..<self.configuration.count {
+			for index in 0 ..< self.configuration.count {
 				let points: [CGPoint] = self.updatedPoints(time: time, index: index)
 				if self.configuration.renderer == "kh" { self.metalViews[index].points = points }
 				else if self.configuration.renderer == "swiftui" {
@@ -293,8 +319,8 @@ final class MeshBenchmarkViewController: UIViewController {
 	private func updatedPoints(time: Double, index: Int) -> [CGPoint] {
 		var points: [CGPoint] = self.fixtures.samples[index].points
 		let offset: Double = Double(index) * 0.37
-		for y in 1..<(self.sample.size.height - 1) {
-			for x in 1..<(self.sample.size.width - 1) {
+		for y in 1 ..< (self.sample.size.height - 1) {
+			for x in 1 ..< (self.sample.size.width - 1) {
 				let vertex: Int = y * self.sample.size.width + x
 				let amplitude: Double = self.sample.size.width == 3 ? 0.16 : 0.035
 				points[vertex].x += amplitude * sin(time * 1.7 + offset + Double(vertex) * 0.21)
@@ -357,19 +383,22 @@ final class MeshBenchmarkViewController: UIViewController {
 
 	private var isSimulator: Bool {
 		#if targetEnvironment(simulator)
-		return true
+			return true
 		#else
-		return false
+			return false
 		#endif
 	}
+
 	private var buildConfiguration: String {
 		#if DEBUG
-		return "Debug"
+			return "Debug"
 		#else
-		return "Release"
+			return "Release"
 		#endif
 	}
 }
+
+// MARK: - BenchmarkSwiftUIState
 
 private final class BenchmarkSwiftUIState: ObservableObject {
 	@Published var points: [SIMD2<Float>]
@@ -383,6 +412,8 @@ private final class BenchmarkSwiftUIState: ObservableObject {
 		self.colors = sample.colors.map({ Color(uiColor: $0) })
 	}
 }
+
+// MARK: - BenchmarkSwiftUIGrid
 
 private struct BenchmarkSwiftUIGrid: View {
 	var states: [BenchmarkSwiftUIState]
@@ -401,12 +432,14 @@ private struct BenchmarkSwiftUIGrid: View {
 	}
 }
 
+// MARK: - BenchmarkSwiftUIMesh
+
 private struct BenchmarkSwiftUIMesh: View {
 	@ObservedObject var state: BenchmarkSwiftUIState
 	var body: some View {
 		if #available(iOS 18.0, *) {
 			MeshGradient(width: self.state.width, height: self.state.height, points: self.state.points,
-				colors: self.state.colors, smoothsColors: true, colorSpace: .device)
+			             colors: self.state.colors, smoothsColors: true, colorSpace: .device)
 		}
 		else { Color.clear }
 	}

@@ -5,6 +5,7 @@ import UIKit
 enum ComparisonExporter {
 	@MainActor static func export() throws {
 		guard #available(iOS 18.0, *) else { return }
+
 		let directory: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("Comparisons", isDirectory: true)
 		// This directory belongs exclusively to the example's generated captures.
 		if FileManager.default.fileExists(atPath: directory.path) { try FileManager.default.removeItem(at: directory) }
@@ -21,6 +22,7 @@ enum ComparisonExporter {
 			guard let swiftUIImage: UIImage = reference.uiImage else {
 				throw NSError(domain: "ComparisonExporter", code: 1, userInfo: [NSLocalizedDescriptionKey: "SwiftUI did not render \(sample.id)"])
 			}
+
 			try ours.pngData()!.write(to: directory.appendingPathComponent("\(sample.id)-kh.png"))
 			try swiftUIImage.pngData()!.write(to: directory.appendingPathComponent("\(sample.id)-swiftui.png"))
 			// A diagnostic reference with our generated handles supplied explicitly
@@ -33,14 +35,13 @@ enum ComparisonExporter {
 				if let image: UIImage = explicitRenderer.uiImage {
 					try image.pngData()!.write(to: directory.appendingPathComponent("\(sample.id)-explicit-swiftui.png"))
 				}
-
 			}
 			manifest.append(["id": sample.id, "title": sample.title, "detail": sample.detail])
 			view.debugMode = .controlPoints
 			try view.renderedImage(size: size).pngData()!.write(to: directory.appendingPathComponent("\(sample.id)-debug.png"))
 		}
 		let metadata: [String: Any] = ["device": UIDevice.current.model, "os": UIDevice.current.systemVersion,
-			"width": Int(size.width), "height": Int(size.height), "samples": manifest]
+		                               "width": Int(size.width), "height": Int(size.height), "samples": manifest]
 		try JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted, .sortedKeys]).write(to: directory.appendingPathComponent("manifest.json"))
 		print("COMPARISON_EXPORT_COMPLETE: \(directory.path)")
 	}

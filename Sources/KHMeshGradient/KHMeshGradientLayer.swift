@@ -13,14 +13,16 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	var isValid: Bool = true
 	var isRenderingEnabled: Bool = false {
 		didSet {
-			if self.isRenderingEnabled && !oldValue { self.hasRendered = false; self.setNeedsDisplay() }
+			if self.isRenderingEnabled, !oldValue { self.hasRendered = false; self.setNeedsDisplay() }
 		}
 	}
+
 	var renderedFrameCount: UInt64 = 0
 	var renderingError: Error?
 	var collectsRenderingStatistics: Bool = false {
-		didSet { if self.collectsRenderingStatistics && self.statisticsStore == nil { self.statisticsStore = MeshRenderingStatisticsStore() } }
+		didSet { if self.collectsRenderingStatistics, self.statisticsStore == nil { self.statisticsStore = MeshRenderingStatisticsStore() } }
 	}
+
 	private var statisticsStore: MeshRenderingStatisticsStore?
 	var renderingStatistics: KHMeshGradientView.RenderingStatistics { self.statisticsStore?.snapshot() ?? .init() }
 	func resetRenderingStatistics() { self.statisticsStore = MeshRenderingStatisticsStore() }
@@ -36,6 +38,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		var smoothsColors: Bool
 		var colorSpace: KHMeshGradientView.ColorSpace
 	}
+
 	private var colorKey: ColorKey?
 	private var colorNets: MeshGeometry.FragmentColors?
 	private var lastDrawableSize: CGSize = .zero
@@ -110,7 +113,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 
 	override func setValue(_ value: Any?, forKey key: String) {
 		super.setValue(value, forKey: key)
-		if !self.isSettingMeshValue && Self.isMeshKey(key) {
+		if !self.isSettingMeshValue, Self.isMeshKey(key) {
 			self.restoreSnapshotValue(value, forKey: key)
 			self.modelValueDidChange?(key, value)
 		}
@@ -118,6 +121,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 
 	func needsMeshWrite(_ mesh: MeshGeometry.Snapshot?) -> Bool {
 		guard let mesh, let previous = self.modelSnapshot, mesh.size == previous.size else { return false }
+
 		return mesh.vertices != previous.vertices || mesh.colors != previous.colors || mesh.background != previous.background
 	}
 
@@ -129,9 +133,10 @@ final class KHMeshGradientLayer: CAMetalLayer {
 			self.removeMeshAnimations()
 			return
 		}
+
 		let active = self.hasMeshAnimations
-		if !animates && !active { return }
-		if animates && !active {
+		if !animates, !active { return }
+		if animates, !active {
 			self.isSeedingMeshValues = true
 			self.writeMeshValues(previous, colors: self.modelColors, background: self.modelBackground, previous: nil)
 			self.isSeedingMeshValues = false
@@ -163,19 +168,26 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		}
 		let parts = key.split(separator: "_")
 		guard parts.count == 3, let index = Int(parts[2]), index >= 0, let mesh = self.modelSnapshot, index < mesh.vertices.count else { return }
+
 		if parts[1] == "color", let color = value as! CGColor? {
 			self.modelColors[index] = color
 			self.modelSnapshot?.colors[index] = MeshGeometry.rgba(color)
 			return
 		}
 		guard let point = (value as? NSValue)?.cgPointValue else { return }
+
 		switch parts[1] {
-		case "point": self.modelSnapshot?.vertices[index].position = point
-		case "leading": self.modelSnapshot?.vertices[index].leadingControlPoint = point
-		case "top": self.modelSnapshot?.vertices[index].topControlPoint = point
-		case "trailing": self.modelSnapshot?.vertices[index].trailingControlPoint = point
-		case "bottom": self.modelSnapshot?.vertices[index].bottomControlPoint = point
-		default: break
+			case "point": self.modelSnapshot?.vertices[index].position = point
+
+			case "leading": self.modelSnapshot?.vertices[index].leadingControlPoint = point
+
+			case "top": self.modelSnapshot?.vertices[index].topControlPoint = point
+
+			case "trailing": self.modelSnapshot?.vertices[index].trailingControlPoint = point
+
+			case "bottom": self.modelSnapshot?.vertices[index].bottomControlPoint = point
+
+			default: break
 		}
 	}
 
@@ -183,6 +195,7 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		(self.animationKeys() ?? []).contains(where: { key in
 			if key.hasPrefix("mesh_") || key.hasPrefix("redraw_") { return true }
 			guard let animation = self.animation(forKey: key) as? CAPropertyAnimation, let path = animation.keyPath else { return false }
+
 			return Self.isMeshKey(path)
 		})
 	}
@@ -194,14 +207,17 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	func removeMeshAnimations() {
 		for key in self.animationKeys() ?? [] {
 			if let animation: CAPropertyAnimation = self.animation(forKey: key) as? CAPropertyAnimation,
-				let path: String = animation.keyPath, Self.isMeshKey(path) { self.removeAnimation(forKey: key) }
+			   let path: String = animation.keyPath, Self.isMeshKey(path) { self.removeAnimation(forKey: key) }
 		}
-		for key in self.animationKeys() ?? [] where key.hasPrefix("redraw_") { self.removeAnimation(forKey: key) }
+		for key in self.animationKeys() ?? [] where key.hasPrefix("redraw_") {
+			self.removeAnimation(forKey: key)
+		}
 	}
 
 	override func add(_ animation: CAAnimation, forKey key: String?) {
 		if let route = self.actionRoute, let basic: CABasicAnimation = animation as? CABasicAnimation,
-			basic.keyPath == "backgroundColor" {
+		   basic.keyPath == "backgroundColor"
+		{
 			// Keep the original object: UIKit registers it after this override returns.
 			// Retarget only the native property animation, leaving helper animations intact.
 			basic.keyPath = route.path
@@ -216,7 +232,8 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		}
 		super.add(animation, forKey: key)
 		guard let property: CAPropertyAnimation = animation as? CAPropertyAnimation,
-			let path: String = property.keyPath, Self.isMeshKey(path) else { return }
+		      let path: String = property.keyPath, Self.isMeshKey(path) else { return }
+
 		if animation.value(forKey: Self.managedAnimationMarker) as? Bool == true { return }
 		let pulse: CABasicAnimation = CABasicAnimation(keyPath: "redrawProgress")
 		pulse.fromValue = 0
@@ -243,16 +260,18 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	func snapshot() -> MeshGeometry.Snapshot? {
 		if self === self.model() { return self.modelSnapshot }
 		guard self.isValid, self.meshSize.vertexCount >= 4 else { return nil }
+
 		let model: KHMeshGradientLayer = self.model()
 		var vertices: [KHMeshGradientView.BezierPoint] = []
 		var colors: [SIMD4<Float>] = []
 		vertices.reserveCapacity(self.meshSize.vertexCount)
 		colors.reserveCapacity(self.meshSize.vertexCount)
-		for index in 0..<self.meshSize.vertexCount {
+		for index in 0 ..< self.meshSize.vertexCount {
 			func point(_ name: String) -> CGPoint? { (self.value(forKey: "mesh_\(name)_\(index)") as? NSValue)?.cgPointValue }
 			guard let p: CGPoint = point("point"), let l: CGPoint = point("leading"), let t: CGPoint = point("top"),
-				let r: CGPoint = point("trailing"), let b: CGPoint = point("bottom"),
-				let c: CGColor = self.value(forKey: "mesh_color_\(index)") as! CGColor? else { return nil }
+			      let r: CGPoint = point("trailing"), let b: CGPoint = point("bottom"),
+			      let c: CGColor = self.value(forKey: "mesh_color_\(index)") as! CGColor? else { return nil }
+
 			vertices.append(.init(position: p, leadingControlPoint: l, topControlPoint: t, trailingControlPoint: r, bottomControlPoint: b))
 			if index < model.modelColors.count, model.modelColors[index] == c, let cached = model.modelSnapshot?.colors[index] { colors.append(cached) }
 			else { colors.append(MeshGeometry.rgba(c)) }
@@ -260,8 +279,8 @@ final class KHMeshGradientLayer: CAMetalLayer {
 		let background: CGColor? = self.value(forKey: "mesh_background") as! CGColor?
 		let backgroundRGBA = background == model.modelBackground ? (model.modelSnapshot?.background ?? .zero) : (background.map(MeshGeometry.rgba) ?? .zero)
 		return MeshGeometry.Snapshot(size: self.meshSize, vertices: vertices, colors: colors,
-			background: backgroundRGBA, smoothsColors: model.smoothsColors,
-			colorSpace: model.colorSpace, debugMode: model.debugMode, subdivisions: model.subdivisions, maximumGeometryError: model.maximumGeometryError)
+		                             background: backgroundRGBA, smoothsColors: model.smoothsColors,
+		                             colorSpace: model.colorSpace, debugMode: model.debugMode, subdivisions: model.subdivisions, maximumGeometryError: model.maximumGeometryError)
 	}
 
 	override func setNeedsDisplay() {
@@ -274,7 +293,8 @@ final class KHMeshGradientLayer: CAMetalLayer {
 	func enqueueFrameIfNeeded() {
 		let target: KHMeshGradientLayer = self.model()
 		guard target.isRenderingEnabled, target.drawableSize.width > 0, target.drawableSize.height > 0,
-			let renderer: MeshRenderer = target.renderer else { return }
+		      let renderer: MeshRenderer = target.renderer else { return }
+
 		target.isMeshDisplayPending = false
 		let statistics: MeshRenderingStatisticsStore? = target.collectsRenderingStatistics ? target.statisticsStore : nil
 		let start: Double = statistics != nil ? CACurrentMediaTime() : 0
@@ -295,16 +315,17 @@ final class KHMeshGradientLayer: CAMetalLayer {
 			target.scheduleDrawableRetry()
 			return
 		}
+
 		let drawableEnd: Double = statistics != nil ? CACurrentMediaTime() : 0
 		do {
 			try renderer.enqueue(snapshot, colorNets: target.colorNets, drawable: drawable, statistics: statistics,
-				snapshotSeconds: snapshotEnd - start, drawableSeconds: drawableEnd - snapshotEnd, didFail: { [weak target] error in
-					target?.renderingError = error
-					target?.hasRendered = false
-					target?.scheduleDrawableRetry()
-				}, didSubmit: { [weak target] in
-					target?.renderedFrameCount += 1
-				})
+			                     snapshotSeconds: snapshotEnd - start, drawableSeconds: drawableEnd - snapshotEnd, didFail: { [weak target] error in
+			                     	target?.renderingError = error
+			                     	target?.hasRendered = false
+			                     	target?.scheduleDrawableRetry()
+			                     }, didSubmit: { [weak target] in
+			                     	target?.renderedFrameCount += 1
+			                     })
 			target.lastSnapshot = snapshot
 			target.lastDrawableSize = target.drawableSize
 			target.hasRendered = true
@@ -316,9 +337,11 @@ final class KHMeshGradientLayer: CAMetalLayer {
 
 	private func scheduleDrawableRetry() {
 		guard !self.retryIsScheduled else { return }
+
 		self.retryIsScheduled = true
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [weak self] in
 			guard let self: KHMeshGradientLayer = self else { return }
+
 			self.retryIsScheduled = false
 			if self.isRenderingEnabled { self.setNeedsDisplay() }
 		})

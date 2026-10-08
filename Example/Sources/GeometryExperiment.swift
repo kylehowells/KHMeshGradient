@@ -2,6 +2,8 @@ import KHMeshGradient
 import SwiftUI
 import UIKit
 
+// MARK: - GeometryExperiment
+
 /// Diagnostic fixtures and exports stay in the example, outside the library.
 enum GeometryExperiment {
 	static let subdivisions: [Int] = [0, 1, 4, 8, 12, 16, 24, 32, 48, 96, 128]
@@ -43,6 +45,7 @@ enum GeometryExperiment {
 
 	@MainActor static func export() throws {
 		guard #available(iOS 18.0, *) else { return }
+
 		let directory: URL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("GeometryExperiment", isDirectory: true)
 		if FileManager.default.fileExists(atPath: directory.path) { try FileManager.default.removeItem(at: directory) }
 		try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -57,6 +60,7 @@ enum GeometryExperiment {
 					reference.scale = 1
 					reference.isOpaque = false
 					guard let image: UIImage = reference.uiImage, let data: Data = image.pngData() else { throw ExportError.swiftUIImage }
+
 					try data.write(to: directory.appendingPathComponent("\(stem)-swiftui.png"))
 					for subdivisions in self.subdivisions {
 						view.subdivisions = subdivisions
@@ -75,26 +79,32 @@ enum GeometryExperiment {
 						})
 					}
 					captures.append(["id": sample.id, "title": sample.title, "stem": stem,
-						"width": Int(size.width), "height": Int(size.height), "inputs": input])
+					                 "width": Int(size.width), "height": Int(size.height), "inputs": input])
 				}
 			}
 		}
 		let metadata: [String: Any] = ["device": UIDevice.current.model, "os": UIDevice.current.systemVersion,
-			"subdivisions": self.subdivisions, "captures": captures, "imageScale": 1,
-			"reference": "SwiftUI ImageRenderer; independent from onscreen GPU benchmarks",
-			"khReferenceSubdivisions": 128, "colorEvaluation": "per-fragment-mixed-basis; packed-half-opaque-device; float-other-modes",
-			"adaptiveSubdivisionValue": 0, "maximumGeometryErrorPixels": 0.5]
+		                               "subdivisions": self.subdivisions, "captures": captures, "imageScale": 1,
+		                               "reference": "SwiftUI ImageRenderer; independent from onscreen GPU benchmarks",
+		                               "khReferenceSubdivisions": 128, "colorEvaluation": "per-fragment-mixed-basis; packed-half-opaque-device; float-other-modes",
+		                               "adaptiveSubdivisionValue": 0, "maximumGeometryErrorPixels": 0.5]
 		try JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted, .sortedKeys]).write(to: directory.appendingPathComponent("manifest.json"), options: .atomic)
 		print("GEOMETRY_EXPORT_COMPLETE")
 	}
 
 	private static func rgba(_ color: UIColor) -> [Double] {
-		var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+		var red: CGFloat = 0
+		var green: CGFloat = 0
+		var blue: CGFloat = 0
+		var alpha: CGFloat = 0
 		color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
 		return [Double(red), Double(green), Double(blue), Double(alpha)]
 	}
+
 	private enum ExportError: Error { case swiftUIImage }
 }
+
+// MARK: - GeometryProbeViewController
 
 /// A single onscreen SwiftUI mesh changes size/geometry once per second so a
 /// debugger can observe its actual RenderBox geometry selection. Never benchmark
@@ -113,15 +123,19 @@ final class GeometryProbeViewController: UIViewController {
 		self.view.backgroundColor = .white
 		UIApplication.shared.isIdleTimerDisabled = true
 	}
+
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		guard self.timer == nil else { return }
+
 		self.advance()
 		self.timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { [weak self] _ in self?.advance() })
 	}
+
 	deinit { self.timer?.invalidate() }
 	private func advance() {
 		guard self.caseIndex < self.cases.count else { self.timer?.invalidate(); self.timer = nil; print("GEOMETRY_PROBE_COMPLETE"); return }
+
 		let (id, size) = self.cases[self.caseIndex]
 		let sample: MeshSample = GeometryExperiment.samples.first(where: { $0.id == id })!
 		self.host?.willMove(toParent: nil)

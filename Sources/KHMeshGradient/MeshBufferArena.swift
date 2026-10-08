@@ -1,6 +1,8 @@
 import Metal
 import Foundation
 
+// MARK: - MeshBufferPool
+
 /// Buffer ownership lasts through command completion; a later frame never writes
 /// into storage that the GPU is still reading. The shared cache has a byte limit.
 final class MeshBufferPool: @unchecked Sendable {
@@ -22,6 +24,7 @@ final class MeshBufferPool: @unchecked Sendable {
 		}
 		self.lock.unlock()
 		guard let buffer = self.device.makeBuffer(length: max(64 * 1024, minimumSize), options: .storageModeShared) else { throw MeshRenderer.Failure.resourceAllocation }
+
 		buffer.label = "KHMeshGradient frame data"
 		return buffer
 	}
@@ -36,6 +39,8 @@ final class MeshBufferPool: @unchecked Sendable {
 	}
 }
 
+// MARK: - MeshBufferArena
+
 /// One arena per command buffer, shared by all meshes encoded in that batch.
 final class MeshBufferArena {
 	private let pool: MeshBufferPool
@@ -48,7 +53,7 @@ final class MeshBufferArena {
 		let length = values.count * MemoryLayout<T>.stride
 		let alignedOffset = (self.offset + 255) & ~255
 		if self.buffers.last == nil || alignedOffset + length > self.buffers.last!.length {
-			self.buffers.append(try self.pool.acquire(minimumSize: length))
+			try self.buffers.append(self.pool.acquire(minimumSize: length))
 			self.offset = 0
 		}
 		else { self.offset = alignedOffset }

@@ -11,8 +11,10 @@ final class MeshAnimationAction: NSObject, CAAction {
 		self.redrawTemplate = redrawTemplate
 		self.fromValue = fromValue
 	}
+
 	func run(forKey event: String, object: Any, arguments: [AnyHashable: Any]?) {
 		guard let layer: KHMeshGradientLayer = object as? KHMeshGradientLayer else { return }
+
 		layer.runUIKitAction(self.template, forKey: event, fromValue: self.fromValue, arguments: arguments)
 		// Give every mesh key an independently registered redraw driver, so its
 		// pause/scrub/resume lifetime follows the animator rather than wall time.

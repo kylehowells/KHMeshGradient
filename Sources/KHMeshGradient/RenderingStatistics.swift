@@ -1,12 +1,14 @@
 import Foundation
 import Metal
 
-extension KHMeshGradientView {
+// MARK: - KHMeshGradientView.RenderingStatistics
+
+public extension KHMeshGradientView {
 	/// Opt-in diagnostics for this view's onscreen Metal rendering. CPU times are
 	/// elapsed wall times (including waits), not process CPU consumption. GPU times
 	/// are equal shares of completed batch command-buffer envelopes, excluding the
 	/// compositor. They are allocations across views, not isolated per-view timings.
-	public struct RenderingStatistics: Codable, Sendable {
+	struct RenderingStatistics: Codable, Sendable {
 		/// Fractional command-buffer contribution: sum across views for the batch count.
 		public internal(set) var commandBufferCount: Double = 0
 		/// Fractional render-pass contribution: sum across views for the pass count.
@@ -33,6 +35,8 @@ extension KHMeshGradientView {
 		public init() { }
 	}
 }
+
+// MARK: - MeshRenderingStatisticsStore
 
 /// GPU completion and drawable presentation callbacks can run off the main thread.
 /// Only aggregate counters are retained; no unbounded sample buffers or allocations
@@ -70,6 +74,7 @@ final class MeshRenderingStatisticsStore: @unchecked Sendable {
 		let start: Double = command.gpuStartTime
 		let end: Double = command.gpuEndTime
 		guard start > 0, end >= start else { return }
+
 		let duration: Double = (end - start) * share
 		self.value.gpuFrameCount += 1
 		self.value.gpuFrameSeconds += duration
@@ -78,16 +83,17 @@ final class MeshRenderingStatisticsStore: @unchecked Sendable {
 
 	func recordPresentation(_ drawable: MTLDrawable) {
 		#if !targetEnvironment(simulator)
-		let time: Double = drawable.presentedTime
-		guard time > 0 else { return }
-		self.lock.lock()
-		defer { self.lock.unlock() }
-		self.value.presentedFrameCount += 1
-		if self.previousPresentationTime > 0, time > self.previousPresentationTime {
-			self.value.presentationIntervalCount += 1
-			self.value.presentationIntervalSeconds += time - self.previousPresentationTime
-		}
-		self.previousPresentationTime = time
+			let time: Double = drawable.presentedTime
+			guard time > 0 else { return }
+
+			self.lock.lock()
+			defer { self.lock.unlock() }
+			self.value.presentedFrameCount += 1
+			if self.previousPresentationTime > 0, time > self.previousPresentationTime {
+				self.value.presentationIntervalCount += 1
+				self.value.presentationIntervalSeconds += time - self.previousPresentationTime
+			}
+			self.previousPresentationTime = time
 		#endif
 	}
 }

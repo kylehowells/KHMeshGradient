@@ -32,6 +32,23 @@ with XcodeGen after changing project configuration. Select your own signing team
 locally or pass it through an `xcodebuild` setting; do not commit machine-specific
 signing credentials, device identifiers, or absolute paths.
 
+## Swift formatting
+
+The checked-in `.swiftformat` matches the configuration used by Spherium's
+KHComponents package. This formatting pass used SwiftFormat 0.62.1.
+Run from the repository root:
+
+```sh
+swiftformat Sources Tests Example/Sources Package.swift --config .swiftformat
+swiftformat Sources Tests Example/Sources Package.swift --config .swiftformat --lint
+```
+
+These paths cover library, tests, example, and package manifest while leaving
+local build products alone. The configuration uses tabs, explicit `self`, and
+next-line `else`, and preserves existing type annotations and constructor names.
+It disables the rule that adds trailing closures; it does not automatically
+convert existing trailing closures into named arguments.
+
 ## Local artifacts
 
 Keep temporary exports, profiler traces, logs, and build products in

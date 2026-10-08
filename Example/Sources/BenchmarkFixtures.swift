@@ -1,6 +1,8 @@
 import CryptoKit
 import UIKit
 
+// MARK: - BenchmarkFixtures
+
 /// Inputs are prepared before any timed updates. The same seed gives both
 /// renderers exactly the same per-view geometry and palette.
 struct BenchmarkFixtures {
@@ -11,11 +13,12 @@ struct BenchmarkFixtures {
 
 	init(sample: MeshSample, count: Int, randomSeed: UInt64?) {
 		var random: BenchmarkRandom = BenchmarkRandom(state: randomSeed ?? 0)
-		self.samples = (0..<count).map({ _ in
+		self.samples = (0 ..< count).map({ _ in
 			guard randomSeed != nil else { return sample }
+
 			var varied: MeshSample = sample
-			for y in 1..<(sample.size.height - 1) {
-				for x in 1..<(sample.size.width - 1) {
+			for y in 1 ..< (sample.size.height - 1) {
+				for x in 1 ..< (sample.size.width - 1) {
 					let vertex: Int = y * sample.size.width + x
 					var point: CGPoint = sample.points[vertex]
 					point.x += (random.unit() * 2 - 1) * 0.045
@@ -25,8 +28,11 @@ struct BenchmarkFixtures {
 			}
 			varied.colors = sample.colors.map({ _ in
 				let hsv: UIColor = UIColor(hue: random.unit(), saturation: 0.65 + random.unit() * 0.35,
-					brightness: 0.65 + random.unit() * 0.35, alpha: 1)
-				var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+				                           brightness: 0.65 + random.unit() * 0.35, alpha: 1)
+				var red: CGFloat = 0
+				var green: CGFloat = 0
+				var blue: CGFloat = 0
+				var alpha: CGFloat = 0
 				hsv.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
 				return UIColor(red: red, green: green, blue: blue, alpha: alpha)
 			})
@@ -36,7 +42,10 @@ struct BenchmarkFixtures {
 			[
 				"points": fixture.points.map({ [Double($0.x), Double($0.y)] }),
 				"colorsRGBA": fixture.colors.map({ color -> [Double] in
-					var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+					var red: CGFloat = 0
+					var green: CGFloat = 0
+					var blue: CGFloat = 0
+					var alpha: CGFloat = 0
 					color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
 					return [Double(red), Double(green), Double(blue), Double(alpha)]
 				}),
@@ -51,6 +60,8 @@ struct BenchmarkFixtures {
 		return SHA256.hash(data: data).map({ String(format: "%02x", $0) }).joined()
 	}
 }
+
+// MARK: - BenchmarkRandom
 
 private struct BenchmarkRandom {
 	var state: UInt64

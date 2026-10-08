@@ -19,6 +19,7 @@ final class MeshRenderer {
 		weak var layer: KHMeshGradientLayer?
 		init(_ layer: KHMeshGradientLayer) { self.layer = layer }
 	}
+
 	private var layers: [LayerReference] = []
 	private var isGatheringFrame: Bool = false
 	private(set) var submittedBatchCount: UInt64 = 0
@@ -29,6 +30,7 @@ final class MeshRenderer {
 		var draws: [Draw] = []
 		init(command: MTLCommandBuffer, pool: MeshBufferPool) { self.command = command; self.arena = MeshBufferArena(pool: pool) }
 	}
+
 	private struct Draw {
 		let drawable: CAMetalDrawable?
 		let texture: MTLTexture
@@ -52,14 +54,22 @@ final class MeshRenderer {
 	}
 
 	enum Failure: Error, LocalizedError {
-		case metalUnavailable, shaderMissing, resourceAllocation, invalidImageSize, commandFailed(String)
+		case metalUnavailable
+		case shaderMissing
+		case resourceAllocation
+		case invalidImageSize
+		case commandFailed(String)
 		var errorDescription: String? {
 			switch self {
 				case .metalUnavailable: return "Metal is unavailable on this device."
+
 				case .shaderMissing: return "The KHMeshGradient shader resource is missing."
+
 				case .resourceAllocation: return "Metal could not allocate a rendering resource."
+
 				case .invalidImageSize: return "The requested image size is invalid or exceeds the Metal texture limit."
-				case .commandFailed(let message): return "Metal rendering failed: \(message)"
+
+				case let .commandFailed(message): return "Metal rendering failed: \(message)"
 			}
 		}
 	}
@@ -68,12 +78,14 @@ final class MeshRenderer {
 		guard let device: MTLDevice = MTLCreateSystemDefaultDevice(), let queue: MTLCommandQueue = device.makeCommandQueue() else {
 			throw Failure.metalUnavailable
 		}
+
 		let library: MTLLibrary
 		if let compiled: MTLLibrary = try? device.makeDefaultLibrary(bundle: Bundle.module) {
 			library = compiled
 		}
 		else {
 			guard let url: URL = Bundle.module.url(forResource: "MeshShaders", withExtension: "metal") else { throw Failure.shaderMissing }
+
 			library = try device.makeLibrary(source: String(contentsOf: url, encoding: .utf8), options: nil)
 		}
 
@@ -104,7 +116,7 @@ final class MeshRenderer {
 			constants.setConstantValue(&halfColors, type: .bool, index: 0)
 			descriptor.fragmentFunction = try self.library.makeFunction(name: fragment, constantValues: constants)
 		}
-		for index in 0..<count {
+		for index in 0 ..< count {
 			let attachment: MTLRenderPipelineColorAttachmentDescriptor = descriptor.colorAttachments[index]
 			attachment.pixelFormat = .bgra8Unorm
 			attachment.writeMask = index == target ? .all : []
@@ -123,16 +135,18 @@ final class MeshRenderer {
 
 	private func makeFrame() throws -> Frame {
 		guard let command = self.queue.makeCommandBuffer() else { throw Failure.resourceAllocation }
+
 		command.label = "KHMeshGradient batch"
 		return Frame(command: command, pool: self.bufferPool)
 	}
 
 	func enqueue(_ mesh: MeshGeometry.Snapshot?, colorNets: MeshGeometry.FragmentColors?, drawable: CAMetalDrawable, statistics: MeshRenderingStatisticsStore?,
-		snapshotSeconds: Double, drawableSeconds: Double, didFail: @escaping (Error) -> Void, didSubmit: @escaping () -> Void) throws {
+	             snapshotSeconds: Double, drawableSeconds: Double, didFail: @escaping (Error) -> Void, didSubmit: @escaping () -> Void) throws
+	{
 		if self.pendingFrame == nil { self.pendingFrame = try self.makeFrame() }
 		let frame = self.pendingFrame!
 		frame.draws.append(Draw(drawable: drawable, texture: drawable.texture, mesh: mesh, colorNets: colorNets, statistics: statistics, snapshotSeconds: snapshotSeconds,
-			drawableSeconds: drawableSeconds, encodingSeconds: 0, didFail: didFail, didSubmit: didSubmit))
+		                        drawableSeconds: drawableSeconds, encodingSeconds: 0, didFail: didFail, didSubmit: didSubmit))
 	}
 
 	func register(_ layer: KHMeshGradientLayer) {
@@ -144,14 +158,18 @@ final class MeshRenderer {
 	/// animating layers and submits them before that same CA transaction finishes.
 	func finishDisplay(for layer: KHMeshGradientLayer) {
 		guard !self.isGatheringFrame else { return }
+
 		self.isGatheringFrame = true
 		defer { self.isGatheringFrame = false }
 		self.layers.removeAll(where: { $0.layer == nil })
 		for reference in self.layers {
 			guard let other = reference.layer, other !== layer, other.isRenderingEnabled else { continue }
+
 			if other.isMeshDisplayPending || other.hasMeshAnimations { other.enqueueFrameIfNeeded() }
 		}
-		while self.pendingFrame != nil { self.flush() }
+		while self.pendingFrame != nil {
+			self.flush()
+		}
 	}
 
 	func flush() {
@@ -160,11 +178,15 @@ final class MeshRenderer {
 
 	private func submitPendingFrame() {
 		guard let frame = self.pendingFrame else { return }
+
 		self.pendingFrame = nil
 		guard !frame.draws.isEmpty else { self.bufferPool.recycle(frame.arena.buffers); return }
+
 		do { try self.encodeBatch(frame) }
 		catch {
-			for draw in frame.draws { draw.didFail(error) }
+			for draw in frame.draws {
+				draw.didFail(error)
+			}
 			self.bufferPool.recycle(frame.arena.buffers)
 			return
 		}
@@ -173,7 +195,9 @@ final class MeshRenderer {
 		let buffers = frame.arena.buffers
 		let pool = self.bufferPool
 		frame.command.addCompletedHandler({ command in
-			for store in stores { store.recordGPU(command, share: share) }
+			for store in stores {
+				store.recordGPU(command, share: share)
+			}
 			pool.recycle(buffers)
 		})
 		let measures = !stores.isEmpty
@@ -182,7 +206,7 @@ final class MeshRenderer {
 		frame.command.waitUntilScheduled()
 		for draw in frame.draws {
 			#if !targetEnvironment(simulator)
-			if let store = draw.statistics { draw.drawable?.addPresentedHandler({ drawable in store.recordPresentation(drawable) }) }
+				if let store = draw.statistics { draw.drawable?.addPresentedHandler({ drawable in store.recordPresentation(drawable) }) }
 			#endif
 			draw.drawable?.present()
 		}
@@ -190,9 +214,9 @@ final class MeshRenderer {
 		self.submittedBatchCount += 1
 		for draw in frame.draws {
 			draw.statistics?.recordCPU(total: draw.snapshotSeconds + draw.drawableSeconds + draw.encodingSeconds + scheduling,
-				snapshot: draw.snapshotSeconds, drawable: draw.drawableSeconds, encoding: draw.encodingSeconds,
-				scheduling: scheduling, commandBuffers: share, renderPasses: draw.renderPassShare,
-				subdivisions: draw.subdivisionCount, triangles: draw.triangleCount)
+			                           snapshot: draw.snapshotSeconds, drawable: draw.drawableSeconds, encoding: draw.encodingSeconds,
+			                           scheduling: scheduling, commandBuffers: share, renderPasses: draw.renderPassShare,
+			                           subdivisions: draw.subdivisionCount, triangles: draw.triangleCount)
 			draw.didSubmit()
 		}
 	}
@@ -206,13 +230,14 @@ final class MeshRenderer {
 		var indices: [UInt32] = []
 		indices.reserveCapacity(6 * subdivisions * subdivisions)
 		let row = UInt32(subdivisions + 1)
-		for y in 0..<subdivisions {
-			for x in 0..<subdivisions {
+		for y in 0 ..< subdivisions {
+			for x in 0 ..< subdivisions {
 				let a = UInt32(y) * row + UInt32(x)
 				indices.append(contentsOf: [a, a + 1, a + row, a + 1, a + row + 1, a + row])
 			}
 		}
 		guard let buffer = indices.withUnsafeBytes({ bytes in self.device.makeBuffer(bytes: bytes.baseAddress!, length: bytes.count, options: .storageModeShared) }) else { throw Failure.resourceAllocation }
+
 		buffer.label = "KHMeshGradient shared triangle indices"
 		if self.indexBufferOrder.count == 8 { self.indexBuffers[self.indexBufferOrder.removeFirst()] = nil }
 		self.indexBufferOrder.append(subdivisions)
@@ -231,28 +256,29 @@ final class MeshRenderer {
 			do {
 				upload = try arena.upload(patches)
 				switch colors {
-				case .half(let data): colorUpload = try arena.upload(data)
-				case .float(let data): colorUpload = try arena.upload(data)
+					case let .half(data): colorUpload = try arena.upload(data)
+
+					case let .float(data): colorUpload = try arena.upload(data)
 				}
 				indices = try self.indices(subdivisions: count)
 			}
 			catch { throw error }
 			var subdivisions: UInt32 = UInt32(count)
 			var space: UInt32 = UInt32(mesh.colorSpace.rawValue)
-			encoder.setRenderPipelineState(try self.pipeline(target: target, count: targetCount, debug: false, halfColors: colors.usesHalf))
+			try encoder.setRenderPipelineState(self.pipeline(target: target, count: targetCount, debug: false, halfColors: colors.usesHalf))
 			encoder.setVertexBuffer(upload.buffer, offset: upload.offset, index: 0)
 			encoder.setVertexBytes(&subdivisions, length: MemoryLayout<UInt32>.size, index: 1)
 			encoder.setFragmentBytes(&space, length: MemoryLayout<UInt32>.size, index: 0)
 			encoder.setFragmentBuffer(colorUpload.buffer, offset: colorUpload.offset, index: 1)
 			encoder.drawIndexedPrimitives(type: .triangle, indexCount: 6 * count * count,
-				indexType: .uint32, indexBuffer: indices, indexBufferOffset: 0, instanceCount: (mesh.size.width - 1) * (mesh.size.height - 1))
+			                              indexType: .uint32, indexBuffer: indices, indexBufferOffset: 0, instanceCount: (mesh.size.width - 1) * (mesh.size.height - 1))
 			if mesh.debugMode != .none {
 				let debug: [DebugVertex] = self.debugVertices(mesh, patches: patches, pixels: pixels, subdivisions: count)
 				if !debug.isEmpty {
 					let debugUpload: (buffer: MTLBuffer, offset: Int)
 					do { debugUpload = try arena.upload(debug) }
 					catch { throw error }
-					encoder.setRenderPipelineState(try self.pipeline(target: target, count: targetCount, debug: true))
+					try encoder.setRenderPipelineState(self.pipeline(target: target, count: targetCount, debug: true))
 					encoder.setVertexBuffer(debugUpload.buffer, offset: debugUpload.offset, index: 0)
 					encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: debug.count)
 				}
@@ -261,7 +287,6 @@ final class MeshRenderer {
 		}
 		return 0
 	}
-
 
 	private func encodeBatch(_ frame: Frame) throws {
 		struct TargetSize: Hashable { var width: Int; var height: Int }
@@ -288,13 +313,14 @@ final class MeshRenderer {
 				frame.draws[index].renderPassShare = 1 / Double(group.count)
 			}
 			guard let encoder = frame.command.makeRenderCommandEncoder(descriptor: pass) else { throw Failure.resourceAllocation }
+
 			encoder.label = "KHMeshGradient \(group.count) independent render targets"
 			do {
 				for (target, index) in group.enumerated() {
 					let draw = frame.draws[index]
 					let start = measured ? CACurrentMediaTime() : 0
 					let subdivisions = try self.encodeMesh(draw.mesh, encoder: encoder, arena: frame.arena,
-						pixels: SIMD2<Float>(Float(draw.texture.width), Float(draw.texture.height)), colorNets: draw.colorNets, target: target, targetCount: group.count)
+					                                       pixels: SIMD2<Float>(Float(draw.texture.width), Float(draw.texture.height)), colorNets: draw.colorNets, target: target, targetCount: group.count)
 					frame.draws[index].subdivisionCount = subdivisions
 					let patchCount = draw.mesh.map({ ($0.size.width - 1) * ($0.size.height - 1) }) ?? 0
 					frame.draws[index].triangleCount = UInt64(2 * subdivisions * subdivisions * patchCount)
@@ -307,17 +333,20 @@ final class MeshRenderer {
 		if measured {
 			let drawTime = frame.draws.reduce(0, { $0 + $1.encodingSeconds })
 			let shared = max(0, CACurrentMediaTime() - batchStart - drawTime) / Double(frame.draws.count)
-			for index in frame.draws.indices { frame.draws[index].encodingSeconds += shared }
+			for index in frame.draws.indices {
+				frame.draws[index].encodingSeconds += shared
+			}
 		}
 	}
 
 	/// The same encoder serves offscreen exports and batch pixel validation.
 	func render(_ meshes: [MeshGeometry.Snapshot?], into textures: [MTLTexture]) throws -> MTLCommandBuffer {
 		guard meshes.count == textures.count, !meshes.isEmpty else { throw Failure.invalidImageSize }
+
 		let frame = try self.makeFrame()
 		frame.draws = meshes.indices.map({ index in
 			Draw(drawable: nil, texture: textures[index], mesh: meshes[index], colorNets: nil, statistics: nil,
-				snapshotSeconds: 0, drawableSeconds: 0, encodingSeconds: 0, didFail: { error in }, didSubmit: { })
+			     snapshotSeconds: 0, drawableSeconds: 0, encodingSeconds: 0, didFail: { error in }, didSubmit: { })
 		})
 		try self.encodeBatch(frame)
 		let pool = self.bufferPool
@@ -331,13 +360,15 @@ final class MeshRenderer {
 		let pixelWidth: CGFloat = (size.width * scale).rounded(.up)
 		let pixelHeight: CGFloat = (size.height * scale).rounded(.up)
 		guard scale.isFinite, scale > 0, pixelWidth.isFinite, pixelHeight.isFinite,
-			pixelWidth >= 1, pixelHeight >= 1, pixelWidth <= 16384, pixelHeight <= 16384 else { throw Failure.invalidImageSize }
+		      pixelWidth >= 1, pixelHeight >= 1, pixelWidth <= 16384, pixelHeight <= 16384 else { throw Failure.invalidImageSize }
+
 		let width: Int = Int(pixelWidth)
 		let height: Int = Int(pixelHeight)
 		let descriptor: MTLTextureDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false)
 		descriptor.usage = .renderTarget
 		descriptor.storageMode = .shared
 		guard let texture: MTLTexture = self.device.makeTexture(descriptor: descriptor) else { throw Failure.resourceAllocation }
+
 		let command: MTLCommandBuffer = try self.render([mesh], into: [texture])
 		command.waitUntilCompleted()
 		if let error: Error = command.error { throw Failure.commandFailed(error.localizedDescription) }
@@ -350,6 +381,7 @@ final class MeshRenderer {
 				CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue),
 			provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent
 		) else { throw Failure.resourceAllocation }
+
 		return UIImage(cgImage: image, scale: scale, orientation: .up)
 	}
 
@@ -360,13 +392,14 @@ final class MeshRenderer {
 		func line(_ a: SIMD2<Float>, _ b: SIMD2<Float>, color: SIMD4<Float>, thickness: Float = 1.5) {
 			let delta: SIMD2<Float> = (b - a) * pixels
 			guard simd_length_squared(delta) > 0.0001 else { return }
+
 			let normal: SIMD2<Float> = simd_normalize(SIMD2<Float>(-delta.y, delta.x)) * thickness * 0.5 / pixels
 			for p in [a - normal, b - normal, a + normal, b - normal, b + normal, a + normal] {
 				vertices.append(DebugVertex(position: p, color: color))
 			}
 		}
 		func dot(_ p: SIMD2<Float>, radius: Float, color: SIMD4<Float>) {
-			for i in 0..<20 {
+			for i in 0 ..< 20 {
 				let a: Float = Float(i) * .pi / 10
 				let b: Float = Float(i + 1) * .pi / 10
 				for v in [p, p + SIMD2<Float>(cos(a), sin(a)) * radius / pixels, p + SIMD2<Float>(cos(b), sin(b)) * radius / pixels] {
@@ -375,14 +408,14 @@ final class MeshRenderer {
 			}
 		}
 		let count: Int = patches.count / 16
-		for patch in 0..<count {
-			let net: [SIMD4<Float>] = Array(patches[(patch * 16)..<(patch * 16 + 16)])
-			let tracks: [Float] = mesh.debugMode == .tessellation ? (0...subdivisions).map({ Float($0) / Float(subdivisions) }) : [0, 1]
+		for patch in 0 ..< count {
+			let net: [SIMD4<Float>] = Array(patches[(patch * 16) ..< (patch * 16 + 16)])
+			let tracks: [Float] = mesh.debugMode == .tessellation ? (0 ... subdivisions).map({ Float($0) / Float(subdivisions) }) : [0, 1]
 			let segments = mesh.debugMode == .tessellation ? subdivisions : 48
 			for track in tracks {
-				for axis in 0..<2 {
+				for axis in 0 ..< 2 {
 					var previous: SIMD2<Float>?
-					for step in 0...segments {
+					for step in 0 ... segments {
 						let t: Float = Float(step) / Float(segments)
 						let p: SIMD4<Float> = MeshGeometry.evaluate(net, u: axis == 0 ? t : track, v: axis == 0 ? track : t)
 						let point: SIMD2<Float> = SIMD2<Float>(p.x, p.y)
@@ -395,8 +428,8 @@ final class MeshRenderer {
 				}
 			}
 			if mesh.debugMode == .tessellation {
-				for y in 0..<subdivisions {
-					for x in 0..<subdivisions {
+				for y in 0 ..< subdivisions {
+					for x in 0 ..< subdivisions {
 						let a = MeshGeometry.evaluate(net, u: Float(x + 1) / Float(subdivisions), v: Float(y) / Float(subdivisions))
 						let b = MeshGeometry.evaluate(net, u: Float(x) / Float(subdivisions), v: Float(y + 1) / Float(subdivisions))
 						line(SIMD2<Float>(a.x, a.y), SIMD2<Float>(b.x, b.y), color: black, thickness: 2)
