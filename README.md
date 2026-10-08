@@ -15,11 +15,12 @@ external package dependencies.
 - A Metal-capable device or Simulator
 - The example's SwiftUI reference panels require iOS 18+. The UIKit panels work on older systems.
 
-The package builds for a deployment target of iOS 15. All 15 tests pass on iOS
-26.5 Simulator; the original 14-test suite also passed on iOS 18.2. Device Release
-and Mac Catalyst builds pass. The checked-in comparisons were captured on iOS
-26.5 Simulator. Physical-device benchmarks run on an M1 iPad Pro with iPadOS
-18.6; pre-iOS-18 runtime testing remains to be done.
+The package builds for a deployment target of iOS 15. All 31 tests pass on iOS
+18.2 and 26.5 Simulator and a physical M1 iPad Pro running iPadOS 18.6.
+Release device and Mac Catalyst arm64/x86_64 builds pass. The gallery comparisons
+were captured on iOS 26.5 Simulator; the geometry comparison matrix and performance
+measurements use the physical iPad. Pre-iOS-18 runtime testing remains to be done.
+See [verification details](Documentation/Verification.md).
 
 ## Installation
 
@@ -221,7 +222,7 @@ are available on device, not Simulator. Diagnostics default to off and retain
 only counters. Reset isolates subsequent frames from earlier in-flight work.
 See the [physical-device benchmark report](Documentation/Benchmarks/README.md)
 for the preserved original sweep. The [optimization measurements](Documentation/Benchmarks/Optimized/README.md)
-compare the current renderer against the original library and SwiftUI on the same
+compare the earlier batched renderer against the original library and SwiftUI on the same
 60 unique gradients, with fresh Release trials and unchanged quality.
 The [geometry-resolution experiment](Documentation/Benchmarks/Geometry/README.md)
 measures subdivision cost and pixel convergence, and records runtime evidence
@@ -288,7 +289,8 @@ python3 -m pip install -r Scripts/requirements.txt
 Scripts/export_comparisons.sh SIMULATOR_UDID
 ```
 
-See [architecture](Documentation/Architecture.md) and
+See the [documentation index](Documentation/README.md),
+[architecture](Documentation/Architecture.md), and
 [comparison notes](Documentation/Comparisons/README.md) for details.
 
 MIT licensed. This repository is prepared locally for a future public GitHub push.
