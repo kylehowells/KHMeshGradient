@@ -7,3 +7,14 @@ xcuserdata/
 *.xcresult
 Example/build/
 __pycache__/
+
+# Local environments and scratch output
+.venv/
+venv/
+*.pyc
+*.pyo
+*.trace/
+*.log
+*.tmp
+*.swp
+*.swo
