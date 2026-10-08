@@ -60,11 +60,11 @@ Do not remove recorded benchmark inputs merely because they were generated.
 
 ## Before the first public release
 
-The MIT/Apache-2.0 dual-license texts and Swift package manifest are present. This repository currently
-has no GitHub remote or version tag. Once the API scope is settled, create the
-public repository, push the reviewed commits, and tag a semantic version that
-matches the intended stability. The README uses the planned repository URL with a `main` branch dependency;
-confirm that URL and replace the branch requirement with the released version.
+The MIT/Apache-2.0 dual-license texts and Swift package manifest are present.
+The public repository is https://github.com/kylehowells/KHMeshGradient and `main`
+is published. There is no version tag yet. Once the API scope is settled, tag a
+semantic version that matches the intended stability and update the README's
+branch dependency to use that released version.
 
 Pre-iOS-18 runtime verification is still outstanding despite the iOS 15 deployment
 target. Interactive animation uses public hooks whose UIKit registration behavior

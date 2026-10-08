@@ -26,10 +26,9 @@ See [verification details](Documentation/Verification.md).
 
 ### Swift Package Manager
 
-The planned public repository URL is
-`https://github.com/kylehowells/KHMeshGradient.git`. It has not been published or
-tagged yet. Once published, add it through Xcode's **File → Add Package
-Dependencies**, select the `main` branch, and add the `KHMeshGradient` product.
+Add `https://github.com/kylehowells/KHMeshGradient.git` through Xcode's
+**File → Add Package Dependencies**, select the `main` branch, and add the
+`KHMeshGradient` product. There is no versioned release yet.
 
 For a Swift package, add the dependency and product to your `Package.swift`:
 
@@ -44,7 +43,7 @@ For a Swift package, add the dependency and product to your `Package.swift`:
 .product(name: "KHMeshGradient", package: "KHMeshGradient"),
 ```
 
-Until publication, add this folder as a local package in Xcode, or use
+For local development, add this folder as a local package in Xcode, or use
 `.package(path: "../KHMeshGradient")` in your package dependencies. After a release
 is tagged, prefer a version requirement over the moving `main` branch.
 
